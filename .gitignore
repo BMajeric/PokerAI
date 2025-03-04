@@ -1,0 +1,15 @@
+# System-specific files (macOS & Windows)
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.swn
+*.bak
+*.~*
+
+# Git-related (but NOT .gitignore itself!)
+.git/
