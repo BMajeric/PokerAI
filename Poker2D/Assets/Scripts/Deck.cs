@@ -4,10 +4,11 @@ using System.Collections.Generic;
 public class Deck
 {
     private List<Card> cards = new List<Card>();
-    // private Dictionary<string, Sprite> cardSprites;
+    private Dictionary<string, Sprite> _cardSprites;
 
-    public Deck ()
+    public Deck (Dictionary<string, Sprite> cardSprites)
     {
+        _cardSprites = cardSprites;
         GenerateDeck();
         Shuffle();
     }
@@ -22,8 +23,12 @@ public class Deck
                 string spriteName = $"{rank}_of_{suit}";
                 Debug.Log(spriteName);
 
+                // ONLY TESTING
+                spriteName = "Ace_of_Spades";
+                Sprite sprite = _cardSprites.ContainsKey(spriteName) ? _cardSprites[spriteName] : null;
+
                 // Generate card of specified suit and rank
-                Card card = new Card(rank, suit);
+                Card card = new Card(rank, suit, sprite);
                 cards.Add(card);
             }
         }

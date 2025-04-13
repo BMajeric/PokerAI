@@ -13,15 +13,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         // Load sprites of cards into dictionary
-        //_cardSprites = LoadCardSprites();
+        Dictionary<string, Sprite> _cardSprites = LoadCardSprites();
 
-        _deck = new Deck();
+        _deck = new Deck(_cardSprites);
 
         for (int i = 0; i < 2; i++)
         {
-            _deck.DrawCard();
-            //GameObject drawnCard = Instantiate(cardPrefab, handCardTransform[i]);
-            //drawnCard.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = _cardSprites["Ace_of_Spades"];
+            Card drawnCard = _deck.DrawCard();
+            GameObject drawnCardGameObject = Instantiate(cardPrefab, handCardTransform[i]);
+            drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = drawnCard.CardSprite;
+            drawnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
         }
     }
 
