@@ -23,8 +23,6 @@ public class Deck
                 string spriteName = $"{rank}_of_{suit}";
                 Debug.Log(spriteName);
 
-                // ONLY TESTING
-                spriteName = "Ace_of_Spades";
                 Sprite sprite = _cardSprites.ContainsKey(spriteName) ? _cardSprites[spriteName] : null;
 
                 // Generate card of specified suit and rank
