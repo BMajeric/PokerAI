@@ -13,17 +13,38 @@ public class GameManager : MonoBehaviour
     private Deck _deck;
     private Dictionary<string, Sprite> _cardSprites;
 
+    private Player _player;
+    private Player _opponent;
+
     void Start()
     {
         // Load sprites of cards into dictionary
         Dictionary<string, Sprite> _cardSprites = LoadCardSprites();
 
         _deck = new Deck(_cardSprites);
+
+        // Create player and opponent
+        _player = new Player();
+        _opponent = new Player();
         
         // Hand dealing
         for (int i = 0; i < handCardTransforms.Count; i++)
         {
             Card drawnCard = _deck.DrawCard();
+
+            // Add card to hand
+            if (i % 2 == 0)
+            {
+                // Deal card to player
+                _player.ReceiveCard(drawnCard);
+            } 
+            else
+            {
+                // Deal card to opponent
+                _opponent.ReceiveCard(drawnCard);
+            }
+
+            // Create card game object
             GameObject drawnCardGameObject = Instantiate(cardPrefab, handCardTransforms[i]);
             drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = drawnCard.CardSprite;
             drawnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
