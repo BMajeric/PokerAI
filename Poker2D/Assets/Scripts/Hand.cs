@@ -5,6 +5,11 @@ public class Hand
 {
     private List<Card> _cards;
 
+    public Hand()
+    {
+        _cards = new List<Card>();
+    }
+
     public void AddCard(Card card)
     {
         _cards.Add(card);

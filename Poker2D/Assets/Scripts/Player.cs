@@ -6,6 +6,11 @@ public class Player
     private Hand _hand;
     // TODO: Add chips
 
+    public Player()
+    {
+        _hand = new Hand();
+    }
+
     public void ReceiveCard(Card card)
     {
         _hand.AddCard(card);
