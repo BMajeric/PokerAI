@@ -49,8 +49,12 @@ public class Deck
 
     public Card DrawCard()
     {
-        // TODO: see if we should recreate the deck or just return null
-        if (cards.Count == 0) return null;
+        // If there are no cards in the deck create a new one
+        if (cards.Count == 0)
+        {
+            GenerateDeck();
+            Shuffle();
+        }
 
         Card drawnCard = cards[0];
         cards.RemoveAt(0);

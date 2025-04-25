@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,17 +17,28 @@ public class GameManager : MonoBehaviour
     private Player _player;
     private Player _opponent;
 
+    private GameState _gameState;
+
     void Start()
     {
         // Load sprites of cards into dictionary
         Dictionary<string, Sprite> _cardSprites = LoadCardSprites();
 
+        // Create the deck
         _deck = new Deck(_cardSprites);
 
         // Create player and opponent
         _player = new Player();
         _opponent = new Player();
-        
+
+        StartRound();
+    }
+
+    private void StartRound()
+    {
+        // Set the game state 
+        _gameState = GameState.ROUND_START;
+
         // Hand dealing
         for (int i = 0; i < handCardTransforms.Count; i++)
         {
@@ -37,7 +49,7 @@ public class GameManager : MonoBehaviour
             {
                 // Deal card to player
                 _player.ReceiveCard(drawnCard);
-            } 
+            }
             else
             {
                 // Deal card to opponent
