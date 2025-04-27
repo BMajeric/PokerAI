@@ -31,10 +31,10 @@ public class GameManager : MonoBehaviour
         _player = new Player();
         _opponent = new Player();
 
-        StartRound();
+        // StartRound();
     }
 
-    private void StartRound()
+    public void StartRound()
     {
         // Set the game state 
         _gameState = GameState.ROUND_START;
@@ -61,26 +61,33 @@ public class GameManager : MonoBehaviour
             drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = drawnCard.CardSprite;
             drawnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
         }
+    }
 
-        //// TEST: flop, turn and river draw
-        //// Flop
-        //for (int i = 0; i < flopCardTransforms.Count; i++)
-        //{
-        //    Card flopCard = _deck.DrawCard();
-        //    GameObject flopCardGameObject = Instantiate(cardPrefab, flopCardTransforms[i]);
-        //    flopCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = flopCard.CardSprite;
-        //    flopCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
-        //}
-        //// Turn
-        //Card turnCard = _deck.DrawCard();
-        //GameObject turnCardGameObject = Instantiate(cardPrefab, turnCardTransform);
-        //turnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = turnCard.CardSprite;
-        //turnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
-        //// River
-        //Card riverCard = _deck.DrawCard();
-        //GameObject riverCardGameObject = Instantiate(cardPrefab, riverCardTransform);
-        //riverCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = riverCard.CardSprite;
-        //riverCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
+    public void DealFlop()
+    {
+        for (int i = 0; i < flopCardTransforms.Count; i++)
+        {
+            Card flopCard = _deck.DrawCard();
+            GameObject flopCardGameObject = Instantiate(cardPrefab, flopCardTransforms[i]);
+            flopCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = flopCard.CardSprite;
+            flopCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
+        }
+    }
+
+    public void DealTurn()
+    {
+        Card turnCard = _deck.DrawCard();
+        GameObject turnCardGameObject = Instantiate(cardPrefab, turnCardTransform);
+        turnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = turnCard.CardSprite;
+        turnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
+    }
+
+    public void DealRiver()
+    {
+        Card riverCard = _deck.DrawCard();
+        GameObject riverCardGameObject = Instantiate(cardPrefab, riverCardTransform);
+        riverCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = riverCard.CardSprite;
+        riverCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
     }
 
     private Dictionary<string, Sprite> LoadCardSprites()
