@@ -200,6 +200,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 207436793}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: dealingOriginTransform
+      value: 
+      objectReference: {fileID: 1337590466}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: flopCardTransforms.Array.size
       value: 3
       objectReference: {fileID: 0}
@@ -226,11 +230,11 @@ PrefabInstance:
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: 'handCardTransforms.Array.data[1]'
       value: 
-      objectReference: {fileID: 1795878947}
+      objectReference: {fileID: 1357508696}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: 'handCardTransforms.Array.data[2]'
       value: 
-      objectReference: {fileID: 1357508696}
+      objectReference: {fileID: 1795878947}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: 'handCardTransforms.Array.data[3]'
       value: 
@@ -560,6 +564,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2301124834740741628, guid: 2da6de5ec524d12458564d0402c266d7, type: 3}
   m_PrefabInstance: {fileID: 6972743551289752849}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1337590465
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1337590466}
+  m_Layer: 0
+  m_Name: DealingTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1337590466
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337590465}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1357508696 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4688056420369023448, guid: 2da6de5ec524d12458564d0402c266d7, type: 3}
@@ -1256,6 +1291,7 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 6972743551289752849}
+  - {fileID: 1337590466}
   - {fileID: 2013787051}
   - {fileID: 405639298}
   - {fileID: 7337706358150167623}

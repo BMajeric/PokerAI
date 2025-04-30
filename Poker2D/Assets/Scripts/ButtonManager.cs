@@ -24,7 +24,7 @@ public class ButtonManager : MonoBehaviour
 
     public void FlopButtonHandler()
     {
-        _gameManager.DealFlop();
+        StartCoroutine(_gameManager.DealFlop());
         _flopButton.SetActive(false);
         _turnButton.SetActive(true);
     }
