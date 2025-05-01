@@ -127,7 +127,27 @@ public class GameManager : MonoBehaviour
 
     public void ShowOpponentHand()
     {
+        StartCoroutine(ShowOpponentHandCoroutine());
+    }
+
+    private IEnumerator ShowOpponentHandCoroutine()
+    {
+        // Make the cards shrink to nothing
+        foreach (GameObject cardGO in _opponent.GetHand().CardGameObjects)
+        {
+            cardGO.transform.DOScaleX(0, 0.125f);
+        }
+        
+        yield return new WaitForSeconds(0.125f);
+        
+        // Change card sprite
         _opponent.ShowPlayerHand();
+
+        // Make the cards expant do original size
+        foreach (GameObject cardGO in _opponent.GetHand().CardGameObjects)
+        {
+            cardGO.transform.DOScaleX(1, 0.125f);
+        }
     }
 
     private Dictionary<string, Sprite> LoadCardSprites(string folderName)
