@@ -24,7 +24,7 @@ public class ButtonManager : MonoBehaviour
 
     public void FlopButtonHandler()
     {
-        StartCoroutine(_gameManager.DealFlop());
+        _gameManager.DealFlop();
         _flopButton.SetActive(false);
         _turnButton.SetActive(true);
     }
@@ -38,6 +38,7 @@ public class ButtonManager : MonoBehaviour
 
     public void RiverButtonHandler()
     {
+        _gameManager.ShowOpponentHand();
         _gameManager.DealRiver();
         _riverButton.SetActive(false);
     }

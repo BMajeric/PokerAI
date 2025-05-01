@@ -1,37 +1,52 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class Hand
 {
-    private List<Card> _cards;
+    public List<Card> Cards { get; private set; }
+    public HandRanking HandStrength { get; private set; }
+
+    private List<GameObject> _cardGameObjects;
 
     public Hand()
     {
-        _cards = new List<Card>();
+        Cards = new List<Card>();
+        _cardGameObjects = new List<GameObject>();
     }
 
-    public void AddCard(Card card)
+    public void AddCard(Card card, GameObject cardGO)
     {
-        _cards.Add(card);
+        Cards.Add(card);
+        _cardGameObjects.Add(cardGO);
     }
 
-    public void AddCards(List<Card> cards)
+    public void AddCards(List<Card> cards, List<GameObject> cardGOs)
     {
-        _cards.AddRange(cards);
+        Cards.AddRange(cards);
+        _cardGameObjects.AddRange(cardGOs);
     }
 
     public void Clear()
     {
-        _cards.Clear();
+        foreach (GameObject cardGO in _cardGameObjects)
+        {
+            GameObject.Destroy(cardGO);
+        }
+        _cardGameObjects.Clear();
+        Cards.Clear();
     }
 
-    public List<Card> GetCards()
+    public void ShowCards()
     {
-        return _cards;
+        for (int i = 0; i < Cards.Count; i++)
+        {
+            _cardGameObjects[i].transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = Cards[i].CardSprite;
+        }
     }
 
     public int GetCardCount()
     {
-        return _cards.Count;
+        return Cards.Count;
     }
 }

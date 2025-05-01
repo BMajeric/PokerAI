@@ -6,11 +6,11 @@ using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameObject cardPrefab;
-    [SerializeField] private List<Transform> handCardTransforms;
-    [SerializeField] private List<Transform> flopCardTransforms;
-    [SerializeField] private Transform turnCardTransform;
-    [SerializeField] private Transform riverCardTransform;
+    [SerializeField] private GameObject _cardPrefab;
+    [SerializeField] private List<Transform> _handCardTransforms;
+    [SerializeField] private List<Transform> _flopCardTransforms;
+    [SerializeField] private Transform _turnCardTransform;
+    [SerializeField] private Transform _riverCardTransform;
 
     private Deck _deck;
     private Sprite _activeCardBack;
@@ -53,47 +53,52 @@ public class GameManager : MonoBehaviour
     private IEnumerator DealHands()
     {
         // Hand dealing
-        for (int i = 0; i < handCardTransforms.Count; i++)
+        for (int i = 0; i < _handCardTransforms.Count; i++)
         {
             Card drawnCard = _deck.DrawCard();
 
             // Create card game object
-            GameObject drawnCardGameObject = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
+            GameObject drawnCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
 
             // Add card to hand
             if (i % 2 == 0)
             {
                 // Deal card to player
-                _player.ReceiveCard(drawnCard);
+                _player.ReceiveCard(drawnCard, drawnCardGameObject);
                 drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = drawnCard.CardSprite;
             }
             else
             {
                 // Deal card to opponent
-                _opponent.ReceiveCard(drawnCard);
+                _opponent.ReceiveCard(drawnCard, drawnCardGameObject);
                 drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = _activeCardBack;
             }
 
             drawnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
             // Animate it to its position in hand
-            AnimateCardDraw(drawnCardGameObject.transform, handCardTransforms[i]);
+            AnimateCardDraw(drawnCardGameObject.transform, _handCardTransforms[i]);
 
             yield return new WaitForSeconds(0.25f);
         }
     }
 
-    public IEnumerator DealFlop()
+    public void DealFlop()
+    {
+        StartCoroutine(DealFlopCoroutine());
+    }
+
+    public IEnumerator DealFlopCoroutine()
     {
         _gameState = GameState.FLOP;
-        for (int i = 0; i < flopCardTransforms.Count; i++)
+        for (int i = 0; i < _flopCardTransforms.Count; i++)
         {
             Card flopCard = _deck.DrawCard();
-            GameObject flopCardGameObject = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
+            GameObject flopCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
             flopCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = flopCard.CardSprite;
             flopCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
-            AnimateCardDraw(flopCardGameObject.transform, flopCardTransforms[i]);
+            AnimateCardDraw(flopCardGameObject.transform, _flopCardTransforms[i]);
             yield return new WaitForSeconds(0.25f);
         }
     }
@@ -102,22 +107,27 @@ public class GameManager : MonoBehaviour
     {
         _gameState = GameState.TURN;
         Card turnCard = _deck.DrawCard();
-        GameObject turnCardGameObject = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
+        GameObject turnCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
         turnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = turnCard.CardSprite;
         turnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
-        AnimateCardDraw(turnCardGameObject.transform, turnCardTransform);
+        AnimateCardDraw(turnCardGameObject.transform, _turnCardTransform);
     }
 
     public void DealRiver()
     {
         _gameState = GameState.RIVER;
         Card riverCard = _deck.DrawCard();
-        GameObject riverCardGameObject = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
+        GameObject riverCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
         riverCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = riverCard.CardSprite;
         riverCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
-        AnimateCardDraw(riverCardGameObject.transform, riverCardTransform);
+        AnimateCardDraw(riverCardGameObject.transform, _riverCardTransform);
+    }
+
+    public void ShowOpponentHand()
+    {
+        _opponent.ShowPlayerHand();
     }
 
     private Dictionary<string, Sprite> LoadCardSprites(string folderName)

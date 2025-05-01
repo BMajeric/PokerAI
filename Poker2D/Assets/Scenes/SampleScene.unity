@@ -192,11 +192,23 @@ PrefabInstance:
       value: GameManager
       objectReference: {fileID: 0}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: _cardPrefab
+      value: 
+      objectReference: {fileID: 5635229508882473638, guid: 7628d55f34296e644ac3ee3e250c9398, type: 3}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: turnCardTransform
       value: 
       objectReference: {fileID: 840296282}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: _turnCardTransform
+      value: 
+      objectReference: {fileID: 840296282}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: riverCardTransform
+      value: 
+      objectReference: {fileID: 207436793}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: _riverCardTransform
       value: 
       objectReference: {fileID: 207436793}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
@@ -209,6 +221,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: handCardTransforms.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: _flopCardTransforms.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: _handCardTransforms.Array.size
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
@@ -237,6 +257,34 @@ PrefabInstance:
       objectReference: {fileID: 1795878947}
     - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
       propertyPath: 'handCardTransforms.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1269409171}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_flopCardTransforms.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1040113106}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_flopCardTransforms.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1478082514}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_flopCardTransforms.Array.data[2]'
+      value: 
+      objectReference: {fileID: 215469165}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_handCardTransforms.Array.data[0]'
+      value: 
+      objectReference: {fileID: 388454938}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_handCardTransforms.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1357508696}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_handCardTransforms.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1795878947}
+    - target: {fileID: 6915540108659969117, guid: f838ff35e717f1b468840d40af715373, type: 3}
+      propertyPath: '_handCardTransforms.Array.data[3]'
       value: 
       objectReference: {fileID: 1269409171}
     m_RemovedComponents: []

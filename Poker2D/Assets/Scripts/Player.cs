@@ -11,14 +11,14 @@ public class Player
         _hand = new Hand();
     }
 
-    public void ReceiveCard(Card card)
+    public void ReceiveCard(Card card, GameObject cardGO)
     {
-        _hand.AddCard(card);
+        _hand.AddCard(card, cardGO);
     }
 
-    public void ReceiveCards(List<Card> cards)
+    public void ReceiveCards(List<Card> cards, List<GameObject> cardGOs)
     {
-        _hand.AddCards(cards);
+        _hand.AddCards(cards, cardGOs);
     }
 
     public void ClearPlayerHand()
@@ -26,13 +26,18 @@ public class Player
         _hand.Clear();
     }
 
+    public void ShowPlayerHand()
+    {
+        _hand.ShowCards();
+    }
+
     public Hand GetHand()
     {
         return _hand;
     }
 
-    public List<Card> GetHAndCards()
+    public List<Card> GetHandCards()
     {
-        return _hand.GetCards();
+        return _hand.Cards;
     }
 }

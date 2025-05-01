@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum HandRankings
+public enum HandRanking
 {
     HIGH_CARD,
     PAIR,
