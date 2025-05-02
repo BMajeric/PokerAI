@@ -13,7 +13,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform _riverCardTransform;
 
     private Deck _deck;
-    private Sprite _activeCardBack;
 
     private Player _player;
     private Player _opponent;
@@ -24,12 +23,6 @@ public class GameManager : MonoBehaviour
     {
         // Load sprites of cards into a dictionary
         Dictionary<string, Sprite> cardSprites = LoadCardSprites("CardSprites");
-
-        // Load sprites of card backs into a dictionary
-        Dictionary<string, Sprite> cardBacks = LoadCardSprites("CardBacks");
-
-        // Set default card back
-        _activeCardBack = cardBacks["Card_Back"];
 
         // Create the deck
         _deck = new Deck(cardSprites);
@@ -64,17 +57,13 @@ public class GameManager : MonoBehaviour
             if (i % 2 == 0)
             {
                 // Deal card to player
-                _player.ReceiveCard(drawnCard, drawnCardGameObject);
-                drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = drawnCard.CardSprite;
+                _player.ReceiveCard(drawnCard, drawnCardGameObject, true);
             }
             else
             {
                 // Deal card to opponent
-                _opponent.ReceiveCard(drawnCard, drawnCardGameObject);
-                drawnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = _activeCardBack;
+                _opponent.ReceiveCard(drawnCard, drawnCardGameObject, false);
             }
-
-            drawnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
             // Animate it to its position in hand
             AnimateCardDraw(drawnCardGameObject.transform, _handCardTransforms[i]);
@@ -127,27 +116,7 @@ public class GameManager : MonoBehaviour
 
     public void ShowOpponentHand()
     {
-        StartCoroutine(ShowOpponentHandCoroutine());
-    }
-
-    private IEnumerator ShowOpponentHandCoroutine()
-    {
-        // Make the cards shrink to nothing
-        foreach (GameObject cardGO in _opponent.GetHand().CardGameObjects)
-        {
-            cardGO.transform.DOScaleX(0, 0.125f);
-        }
-        
-        yield return new WaitForSeconds(0.125f);
-        
-        // Change card sprite
-        _opponent.ShowPlayerHand();
-
-        // Make the cards expant do original size
-        foreach (GameObject cardGO in _opponent.GetHand().CardGameObjects)
-        {
-            cardGO.transform.DOScaleX(1, 0.125f);
-        }
+        StartCoroutine(_opponent.GetHand().RevealHandAnimated());
     }
 
     private Dictionary<string, Sprite> LoadCardSprites(string folderName)

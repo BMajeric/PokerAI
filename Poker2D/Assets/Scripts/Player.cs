@@ -11,14 +11,14 @@ public class Player
         _hand = new Hand();
     }
 
-    public void ReceiveCard(Card card, GameObject cardGO)
+    public void ReceiveCard(Card card, GameObject cardGO, bool isFaceUp)
     {
-        _hand.AddCard(card, cardGO);
+        _hand.AddCard(card, cardGO, isFaceUp);
     }
 
-    public void ReceiveCards(List<Card> cards, List<GameObject> cardGOs)
+    public void ReceiveCards(List<Card> cards, List<GameObject> cardGOs, bool areFaceUp)
     {
-        _hand.AddCards(cards, cardGOs);
+        _hand.AddCards(cards, cardGOs, areFaceUp);
     }
 
     public void ClearPlayerHand()
@@ -26,18 +26,9 @@ public class Player
         _hand.Clear();
     }
 
-    public void ShowPlayerHand()
-    {
-        _hand.ShowCards();
-    }
-
     public Hand GetHand()
     {
         return _hand;
     }
 
-    public List<Card> GetHandCards()
-    {
-        return _hand.Cards;
-    }
 }
