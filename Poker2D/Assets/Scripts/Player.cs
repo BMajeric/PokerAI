@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class Player
 {
-    private Hand _hand;
+    private readonly Hand _hand;
     // TODO: Add chips
 
     public Player()

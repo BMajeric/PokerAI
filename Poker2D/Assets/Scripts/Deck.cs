@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class Deck
 {
-    private List<Card> cards = new List<Card>();
-    private Dictionary<string, Sprite> _cardSprites;
+    private readonly List<Card> _cards = new List<Card>();
+    private readonly Dictionary<string, Sprite> _cardSprites;
 
     public Deck (Dictionary<string, Sprite> cardSprites)
     {
@@ -27,7 +27,7 @@ public class Deck
 
                 // Generate card of specified suit and rank
                 Card card = new Card(rank, suit, sprite);
-                cards.Add(card);
+                _cards.Add(card);
             }
         }
     }
@@ -37,27 +37,27 @@ public class Deck
         // Fisher-Yates shuffle
         System.Random rand = new();
 
-        int n = cards.Count;
+        int n = _cards.Count;
         for (int i = 0; i < n; i++)
         {
             int j = i + rand.Next(n - i);
 
             // Swap the two selected cards
-            (cards[j], cards[i]) = (cards[i], cards[j]);
+            (_cards[j], _cards[i]) = (_cards[i], _cards[j]);
         }
     }
 
     public Card DrawCard()
     {
         // If there are no cards in the deck create a new one
-        if (cards.Count == 0)
+        if (_cards.Count == 0)
         {
             GenerateDeck();
             Shuffle();
         }
 
-        Card drawnCard = cards[0];
-        cards.RemoveAt(0);
+        Card drawnCard = _cards[0];
+        _cards.RemoveAt(0);
 
         Debug.Log($"Drawn the {drawnCard}");
         return drawnCard;
@@ -65,7 +65,7 @@ public class Deck
 
     public int GetDeckSize()
     {
-        return cards.Count;
+        return _cards.Count;
     }
 
 }

@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
 
     private Player _player;
     private Player _opponent;
+    private Table _table;
 
     private GameState _gameState;
 
@@ -30,6 +31,9 @@ public class GameManager : MonoBehaviour
         // Create player and opponent
         _player = new Player();
         _opponent = new Player();
+
+        // Create table for community cards
+        _table = new Table();
 
         // StartRound();
     }
@@ -79,14 +83,19 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator DealFlopCoroutine()
     {
+        // Set the game state
         _gameState = GameState.FLOP;
+
         for (int i = 0; i < _flopCardTransforms.Count; i++)
         {
+            // Create card and card game object
             Card flopCard = _deck.DrawCard();
             GameObject flopCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
-            flopCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = flopCard.CardSprite;
-            flopCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
+            // Pass card to the table class
+            _table.AddCard(flopCard, flopCardGameObject);
+
+            // Animate card dealing
             AnimateCardDraw(flopCardGameObject.transform, _flopCardTransforms[i]);
             yield return new WaitForSeconds(0.25f);
         }
@@ -94,23 +103,33 @@ public class GameManager : MonoBehaviour
 
     public void DealTurn()
     {
+        // Set the game state
         _gameState = GameState.TURN;
+
+        // Create card and card game object
         Card turnCard = _deck.DrawCard();
         GameObject turnCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
-        turnCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = turnCard.CardSprite;
-        turnCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
+        // Pass card to the table class
+        _table.AddCard(turnCard, turnCardGameObject);
+
+        // Animate card dealing
         AnimateCardDraw(turnCardGameObject.transform, _turnCardTransform);
     }
 
     public void DealRiver()
     {
+        // Set the game state
         _gameState = GameState.RIVER;
+
+        // Create card and card game object
         Card riverCard = _deck.DrawCard();
         GameObject riverCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
-        riverCardGameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<Image>().sprite = riverCard.CardSprite;
-        riverCardGameObject.GetComponentInChildren<Canvas>().worldCamera = Camera.main;
 
+        // Pass card to the table class
+        _table.AddCard(riverCard, riverCardGameObject);
+
+        // Animate card dealing
         AnimateCardDraw(riverCardGameObject.transform, _riverCardTransform);
     }
 
