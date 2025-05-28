@@ -133,6 +133,11 @@ public class GameManager : MonoBehaviour
         AnimateCardDraw(riverCardGameObject.transform, _riverCardTransform);
     }
 
+    public void CalculatePlayersHandStrength()
+    {
+        _player.GetHand().CalculateHandStrength(_table.CommunityCards);
+    }
+
     public void ShowOpponentHand()
     {
         StartCoroutine(_opponent.GetHand().RevealHandAnimated());

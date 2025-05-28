@@ -38,8 +38,9 @@ public class ButtonManager : MonoBehaviour
 
     public void RiverButtonHandler()
     {
-        _gameManager.ShowOpponentHand();
         _gameManager.DealRiver();
         _riverButton.SetActive(false);
+        _gameManager.ShowOpponentHand();
+        _gameManager.CalculatePlayersHandStrength();
     }
 }

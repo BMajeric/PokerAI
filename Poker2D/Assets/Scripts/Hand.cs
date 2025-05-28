@@ -58,6 +58,20 @@ public class Hand
         Cards.Clear();
     }
 
+    public HandRanking CalculateHandStrength(List<Card> communityCards)
+    {
+        // Create new list that combines 
+        List<Card> playerCards = new List<Card>();
+        playerCards.AddRange(communityCards);
+        playerCards.AddRange(Cards);
+
+        //communityCards.AddRange(Cards);
+
+        HandEvaluator.CalculateHandStrength(playerCards);
+
+        return HandRanking.HIGH_CARD;
+    }
+
     public IEnumerator RevealHandAnimated()
     {
         // Make the cards shrink to nothing
