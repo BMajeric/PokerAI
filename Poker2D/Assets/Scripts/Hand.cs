@@ -9,11 +9,14 @@ public class Hand
     public List<Card> Cards { get; private set; }
     public List<GameObject> CardGameObjects { get; private set; }
     public HandRanking HandStrength { get; private set; }
+    public ulong EncodedStrengthValue { get; private set; }
 
     public Hand()
     {
         Cards = new List<Card>();
         CardGameObjects = new List<GameObject>();
+        HandStrength = HandRanking.HIGH_CARD;
+        EncodedStrengthValue = 0;
     }
 
     public void AddCard(Card card, GameObject cardGO, bool isFaceUp)
@@ -58,7 +61,7 @@ public class Hand
         Cards.Clear();
     }
 
-    public HandRanking CalculateHandStrength(List<Card> communityCards)
+    public void CalculateHandStrength(List<Card> communityCards)
     {
         // Create new list that combines 
         List<Card> playerCards = new List<Card>();
@@ -67,9 +70,7 @@ public class Hand
 
         //communityCards.AddRange(Cards);
 
-        HandEvaluator.CalculateHandStrength(playerCards);
-
-        return HandRanking.HIGH_CARD;
+        (HandStrength, EncodedStrengthValue) = HandEvaluator.CalculateHandStrength(playerCards);
     }
 
     public IEnumerator RevealHandAnimated()
