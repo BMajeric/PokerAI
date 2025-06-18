@@ -8,16 +8,11 @@ public class HandEvaluator
     public static (HandRanking ranking, ulong encodedValue) CalculateHandStrength(List<Card> cards)
     {
         // ulong handBits = EncodeHandAsBits(cards);
-        ulong handBits = 0b1000100010001001100000000000000000001000000000000000;
+        ulong handBits = 0b1000000000100000001000000000000000000001010010000010;
         Debug.Log($"Hand bits: {Convert.ToString((long)handBits, 2)}");
-        Debug.Log($"Hand bits shifted by 4: {Convert.ToString((long)handBits>>4, 2)}");
-        // 1000100010001000100110000000000000001000000000000000
-        // 0000100010001000100110000000000000000000100000000000
-        // 0000000010001000100010001001100000000000000010000000
-        // 0000000000001000100010001000100110000000000000001000
-        // 0000000000000000100010001000100010011000000000000000
-        // 0000000000000000100010000000000000000000000000000000
-        CheckFlush(handBits);
+
+        //CheckFlush(handBits);
+        CheckStraight(handBits);
 
         // What should hand checkers return?
         // Hand checkers should return the HandRanking enum value of the strength of the hand if found,
@@ -34,8 +29,6 @@ public class HandEvaluator
         //
         // So in conclusion, every method should return a touple that looks something like this:
         // (HandRank, value)
-
-        CheckStraightFlush(handBits);
 
         return (HandRanking.HIGH_CARD, 0);
     }
@@ -58,16 +51,6 @@ public class HandEvaluator
         return handBits;
     }
 
-    public static void CheckStraightFlush(ulong handBits)
-    {
-        // Check for straight flush using bitshifting formula
-        ulong result = handBits & (handBits >> 4) & (handBits >> 8) & (handBits >> 12) & (handBits >> 16);
-        Debug.Log($"The result of straight flush check is: {result}");
-
-        // If is straight flush up to the ace, return royal flush
-
-    }
-
     public static void CheckMultipleSameRankCards(ulong handBits)
     {
         // Initialize masks for "Pairs", "Trips" and "Quads"
@@ -81,24 +64,24 @@ public class HandEvaluator
         // Based on popcounts return "Four of a Kind", "Full House", "Three of a Kind", "Two Pair" or "Pair"
     }
 
-    public static void CheckFlush(ulong handBits)
+    public static (HandRanking ranking, ulong encodedValue) CheckFlush(ulong handBits)
     {
         // Check for flush and straight flush
         // Iterate through all the suits, then all the ranks for each suit
         // If that card exists, write its rank in the suit mask for that suit
         // After all the ranks of a suit are checked, check if there are 5 or more cards of the same suit
         // If there are, we have a flush
-        ulong[] suitMasks = new ulong[4];
+        ushort[] suitMasks = new ushort[4];
         int flushSuit = -1;
 
         for (int suit = 0; suit < 4; suit++)
         {
-            ulong suitMask = 0;
+            ushort suitMask = 0;
             for (int rank = 0; rank < 13; rank++)
             {
                 int bitPos = rank * 4 + suit;
                 if (((handBits >> bitPos) & 1UL) != 0)
-                    suitMask |= 1UL << rank;
+                    suitMask |= (ushort)(1 << rank);
             }
             suitMasks[suit] = suitMask;
             if (PopCount(suitMask) >= 5)
@@ -110,38 +93,106 @@ public class HandEvaluator
 
         // If no flush detected -> return
         if (flushSuit == -1)
-            return; // HandRanking.HIGH_CARD
+            return (HandRanking.HIGH_CARD, 0);
 
         // Check for straight flush
-        ulong flushRanks = suitMasks[flushSuit];
+        ushort flushRanks = suitMasks[flushSuit];
 
+        CheckStraightFromBitMask(flushRanks);   // Check result and return it !!!!!!!!!!!!
+
+        return (HandRanking.FLUSH, 0);
+    }
+
+    public static (HandRanking ranking, ulong encodedValue) CheckStraight(ulong handBits)
+    {
+        // Create a 13 bit mask of rank presence
+        ushort straightRanks = 0;
+        for (int rank = 0; rank < 13; rank++)
+        {
+            if ((handBits & (0b1111UL << (rank * 4))) != 0)
+            {
+                straightRanks |= (ushort)(1 << rank);
+            }
+        }
+
+        Debug.Log($"Straight checker bits: {Convert.ToString((long)straightRanks, 2)}");
+
+        // Check for straight in the bit mask and return the value
+        return CheckStraightFromBitMask(straightRanks);
+    }
+
+    public static (HandRanking ranking, ulong encodedValue) CheckStraightFromBitMask(ushort bitMask)
+    {
         // Normal straight check
+        // - Slide bit window from highest to lowst
+        // - Stop at the first pattern match (largest straight)
         for (int i = 12; i >= 4; i--)
         {
-            if ((flushRanks & (0b11111UL << (i - 4))) == (0b11111UL << (i - 4)))
+            if ((bitMask & (ushort)(0b11111 << (i - 4))) == (ushort)(0b11111 << (i - 4)))
             {
-                // Normal straight detected
-                if (i == 12)
-                    return; // HandRanking.ROYAL_FLUSH
-                return; // HandRanking.STRAIGHT_FLUSH, value?
+                return (HandRanking.STRAIGHT, EncodeStraight(i + 2));   // +2 to shift card values from the 0-12 range to 2-14 range
             }
         }
 
         // Ace-low straight check
-        if ((flushRanks & 0b1000000001111UL) == 0b1000000001111UL)
-            return; // HandRanking.STRAIGHT_FLUSH, value?
+        if ((bitMask & 0b1000000001111) == 0b1000000001111)
+            return (HandRanking.STRAIGHT, EncodeStraight(5));
 
-        return; // HandRanking.FLUSH, value?
+        return (HandRanking.HIGH_CARD, 0);
     }
 
-    public static void CheckStraight(ulong handBits)
+    private static void EncodeFourOfAKind(int quadRank, int kicker)
     {
-        // Check for straight using bitshifting formula
+
+    }
+
+    private static void EncodeFullHouse(int tripRank, int pairRank)
+    {
+
+    }
+
+    private static uint EncodeStraight(int highestRank)
+    {
+        // Encoding for Royal Flush, Straight Flush and Straight
+        uint res = 0;
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (highestRank - i != 1)
+                res |= (uint)((highestRank - i) << ((4 - i) * 4));
+            else
+                res |= 0xE;   // Low Ace
+        }
+
+        Debug.Log($"Rank: {highestRank}; Hex value: 0x{res:X}");
+
+        return res;
+    }
+
+    private static void EncodeThreeOfAKind(int tripRank, int kicker1, int kicker2)
+    {
+
+    }
+
+    private static void EncodeTwoPair(int pairRank1, int pairRank2, int kicker)
+    {
+
+    }
+
+    private static void EncodePair(int pairRank, ushort kickers)
+    {
+
+    }
+
+    private static void EncodeHighCard(ushort cards)
+    {
+        // Encoding for Flush and High Card
+
     }
 
     private static int PopCount(ulong value)
     {
-        // Implementation of popcount
+        // Implementation of popcount (Hacker's Delight)
         // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs#L434
 
         const ulong c1 = 0x5555555555555555UL; 
