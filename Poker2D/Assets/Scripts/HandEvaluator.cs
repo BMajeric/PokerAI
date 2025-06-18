@@ -8,10 +8,10 @@ public class HandEvaluator
     public static (HandRanking ranking, uint encodedValue) CalculateHandStrength(List<Card> cards)
     {
         // ulong handBits = EncodeHandAsBits(cards);
-        ulong handBits = 0b1000000000100000001000000000000000000001010010000010;
+        ulong handBits = 0b1000000010001000000000001000000000000000100010000001;
         Debug.Log($"Hand bits: {Convert.ToString((long)handBits, 2)}");
 
-        //CheckFlush(handBits);
+        CheckFlush(handBits);
         CheckStraight(handBits);
 
         // What should hand checkers return?
@@ -76,6 +76,7 @@ public class HandEvaluator
 
         for (int suit = 0; suit < 4; suit++)
         {
+            // Create rank mask for specific suit
             ushort suitMask = 0;
             for (int rank = 0; rank < 13; rank++)
             {
@@ -83,6 +84,8 @@ public class HandEvaluator
                 if (((handBits >> bitPos) & 1UL) != 0)
                     suitMask |= (ushort)(1 << rank);
             }
+
+            // Check if created rank mask contains a flush
             suitMasks[suit] = suitMask;
             if (PopCount(suitMask) >= 5)
             {
@@ -98,9 +101,14 @@ public class HandEvaluator
         // Check for straight flush
         ushort flushRanks = suitMasks[flushSuit];
 
-        CheckStraightFromBitMask(flushRanks, true);   // Check result and return it !!!!!!!!!!!!
+        (HandRanking ranking, uint encodedValue) straightCheckedResult = CheckStraightFromBitMask(flushRanks, true);
 
-        return (HandRanking.FLUSH, 0);
+        // Return the straight flush if detected
+        if (straightCheckedResult != (HandRanking.HIGH_CARD, 0))
+            return straightCheckedResult;
+
+        // Flush is detected and straight is not, return that the hand is a flush
+        return (HandRanking.FLUSH, EncodeHighCard(flushRanks));
     }
 
     public static (HandRanking ranking, uint encodedValue) CheckStraight(ulong handBits)
@@ -193,10 +201,30 @@ public class HandEvaluator
 
     }
 
-    private static void EncodeHighCard(ushort cards)
+    private static uint EncodeHighCard(ushort cards)
     {
         // Encoding for Flush and High Card
+        // Go through all the cards from highest to lowest
+        // If there is a one in that place, detect which card it is and encode it
+        // Repeat for first 5 cards detected
+        
+        uint res = 0;
+        int counter = 4;
 
+        for (int i = 14; i >= 2; i--)
+        {
+            if ((cards & (1 << (i - 2))) != 0)
+            {
+                res |= (uint)(i << (counter * 4));
+                if (counter == 0)
+                    break;
+                counter--;
+            }
+        }
+
+        Debug.Log($"Cards: {Convert.ToString((int)cards, 2)}; Hex value for high card or flush: 0x{res:X}");
+
+        return res;
     }
 
     private static int PopCount(ulong value)
