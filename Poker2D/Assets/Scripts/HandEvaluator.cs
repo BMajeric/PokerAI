@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class HandEvaluator
 {
-    public static (HandRanking ranking, ulong encodedValue) CalculateHandStrength(List<Card> cards)
+    public static (HandRanking ranking, uint encodedValue) CalculateHandStrength(List<Card> cards)
     {
         // ulong handBits = EncodeHandAsBits(cards);
         ulong handBits = 0b1000000000100000001000000000000000000001010010000010;
@@ -28,7 +28,7 @@ public class HandEvaluator
         // so that comparing two hands of the same rank gives which one is stronger immediately
         //
         // So in conclusion, every method should return a touple that looks something like this:
-        // (HandRank, value)
+        // (HandRank, uint value)
 
         return (HandRanking.HIGH_CARD, 0);
     }
@@ -64,7 +64,7 @@ public class HandEvaluator
         // Based on popcounts return "Four of a Kind", "Full House", "Three of a Kind", "Two Pair" or "Pair"
     }
 
-    public static (HandRanking ranking, ulong encodedValue) CheckFlush(ulong handBits)
+    public static (HandRanking ranking, uint encodedValue) CheckFlush(ulong handBits)
     {
         // Check for flush and straight flush
         // Iterate through all the suits, then all the ranks for each suit
@@ -98,12 +98,12 @@ public class HandEvaluator
         // Check for straight flush
         ushort flushRanks = suitMasks[flushSuit];
 
-        CheckStraightFromBitMask(flushRanks);   // Check result and return it !!!!!!!!!!!!
+        CheckStraightFromBitMask(flushRanks, true);   // Check result and return it !!!!!!!!!!!!
 
         return (HandRanking.FLUSH, 0);
     }
 
-    public static (HandRanking ranking, ulong encodedValue) CheckStraight(ulong handBits)
+    public static (HandRanking ranking, uint encodedValue) CheckStraight(ulong handBits)
     {
         // Create a 13 bit mask of rank presence
         ushort straightRanks = 0;
@@ -118,25 +118,34 @@ public class HandEvaluator
         Debug.Log($"Straight checker bits: {Convert.ToString((long)straightRanks, 2)}");
 
         // Check for straight in the bit mask and return the value
-        return CheckStraightFromBitMask(straightRanks);
+        return CheckStraightFromBitMask(straightRanks, false);
     }
 
-    public static (HandRanking ranking, ulong encodedValue) CheckStraightFromBitMask(ushort bitMask)
+    public static (HandRanking ranking, uint encodedValue) CheckStraightFromBitMask(ushort bitMask, bool isFromFlush)
     {
         // Normal straight check
         // - Slide bit window from highest to lowst
         // - Stop at the first pattern match (largest straight)
-        for (int i = 12; i >= 4; i--)
+        for (int i = 14; i >= 6; i--)
         {
-            if ((bitMask & (ushort)(0b11111 << (i - 4))) == (ushort)(0b11111 << (i - 4)))
+            if ((bitMask & (ushort)(0b11111 << (i - 6))) == (ushort)(0b11111 << (i - 6)))
             {
-                return (HandRanking.STRAIGHT, EncodeStraight(i + 2));   // +2 to shift card values from the 0-12 range to 2-14 range
+                HandRanking ranking;
+                if (isFromFlush)
+                {
+                    ranking = (i == 14) ? HandRanking.ROYAL_FLUSH : HandRanking.STRAIGHT_FLUSH;
+                }
+                else
+                {
+                    ranking = HandRanking.STRAIGHT;
+                }
+                return (ranking, EncodeStraight(i));
             }
         }
 
         // Ace-low straight check
         if ((bitMask & 0b1000000001111) == 0b1000000001111)
-            return (HandRanking.STRAIGHT, EncodeStraight(5));
+            return (isFromFlush ? HandRanking.STRAIGHT_FLUSH : HandRanking.STRAIGHT, EncodeStraight(5));
 
         return (HandRanking.HIGH_CARD, 0);
     }
