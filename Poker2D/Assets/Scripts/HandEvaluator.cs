@@ -7,13 +7,6 @@ public class HandEvaluator
 {
     public static (HandRanking ranking, uint encodedValue) CalculateHandStrength(List<Card> cards)
     {
-        // ulong handBits = EncodeHandAsBits(cards);
-        ulong handBits = 0b1000000010001000000000001000000000000000100010000001;
-        Debug.Log($"Hand bits: {Convert.ToString((long)handBits, 2)}");
-
-        CheckFlush(handBits);
-        CheckStraight(handBits);
-
         // What should hand checkers return?
         // Hand checkers should return the HandRanking enum value of the strength of the hand if found,
         // otherwise return HandRanking.HIGH_CARD
@@ -23,14 +16,42 @@ public class HandEvaluator
         // 
         // Hands can be represented by a 5 digit hex number where all the digits represent cards from the strongest to the weakest
         // The cards in larger clusters have priority since they represent the main hand strength value
-        // (eg. a hand with three 2s an Ace and a 10 would be represented as 0x222EA or something like that, up for discussion)
+        // (eg. a hand with three 2s an Ace and a 10 would be represented as 0x222EA)
         // The value calcualted like this includes all the important cards and kickers
         // so that comparing two hands of the same rank gives which one is stronger immediately
         //
         // So in conclusion, every method should return a touple that looks something like this:
-        // (HandRank, uint value)
+        // (HandRank rank, uint value)
 
-        return (HandRanking.HIGH_CARD, 0);
+        // Testing
+        // ulong handBits = 0b1000100010000000000000000000000000000001010000100001;
+
+        // Encode the cards as bits
+        ulong handBits = EncodeHandAsBits(cards);
+        Debug.Log($"Hand bits: {Convert.ToString((long)handBits, 2)}");
+
+        // Set the error value (encodedValue cannot be 0)
+        (HandRanking ranking, uint encodedValue) res = (HandRanking.HIGH_CARD, 0);
+
+        // Check for Flush, Straight Flush and Royal Flush
+        (HandRanking ranking, uint encodedValue) flushHandStrength = CheckFlush(handBits);
+        if (flushHandStrength.ranking > res.ranking)
+            res = flushHandStrength;
+
+        // Check for Straight
+        (HandRanking ranking, uint encodedValue) straightHandStrength = CheckStraight(handBits);
+        if (straightHandStrength.ranking > res.ranking)
+            res = straightHandStrength;
+
+        // Check for Four of a Kind, Full House, Three of a Kind, Two Pair, Pair, High Card
+        (HandRanking ranking, uint encodedValue) multiplesHandStrength = CheckMultipleSameRankCards(handBits);
+        if ((multiplesHandStrength.ranking > res.ranking) || (multiplesHandStrength.ranking == res.ranking && multiplesHandStrength.encodedValue > res.encodedValue))
+            res = multiplesHandStrength;
+
+        // Debug.Log($"Flush? ({flushHandStrength.ranking}, 0x{flushHandStrength.encodedValue:X})\nStraight? ({straightHandStrength.ranking}, 0x{straightHandStrength.encodedValue:X})\nMultiples? ({multiplesHandStrength.ranking}, 0x{multiplesHandStrength.encodedValue:X})");
+        Debug.Log($"Result: ({res.ranking}, 0x{res.encodedValue:X})");
+
+        return res;
     }
 
     public static ulong EncodeHandAsBits(List<Card> cards)
@@ -51,17 +72,165 @@ public class HandEvaluator
         return handBits;
     }
 
-    public static void CheckMultipleSameRankCards(ulong handBits)
+    public static (HandRanking ranking, uint encodedValue) CheckMultipleSameRankCards(ulong handBits)
     {
-        // Initialize masks for "Pairs", "Trips" and "Quads"
+        // Initialize rank masks for "Pairs", "Trips" and "Quads"
+        // A rank mask represents all the card ranks and has 1 ticked where there is a pair, trip or quad respectively
+        ushort pairs = 0;
+        ushort trips = 0;
+        ushort quads = 0;
 
-        // Go through all ranks
+        // Initialize a rank mask for kickers
+        ushort kickers = 0;
 
-        // Split handBits into nibbles
+        // Fist fill the masks with info on present pairs, trips and quads
+        for (int rank = 0; rank < 13; rank++)
+        {
+            // Split handBits into nibbles and popcount the nibble to find out if there is none, one, two, three or four cards of that rank
+            int count = PopCount(handBits & (0b1111UL << (rank * 4)));
+            // Debug.Log($"Iteration {rank}: count -> {count}");
 
-        // Popcount the nibble to find out if there is none, one, two, three or four cards of that rank
+            if (count == 4)     // Found a four of a kind
+            {
+                quads |= (ushort)(1 << rank);
+            } 
+            else if (count == 3)    // Found a three of a kind
+            {
+                trips |= (ushort)(1 << rank);
+            }
+            else if (count == 2)    // Found a pair
+            {
+                pairs |= (ushort)(1 << rank);
+            }
 
-        // Based on popcounts return "Four of a Kind", "Full House", "Three of a Kind", "Two Pair" or "Pair"
+            // Fill kicker mask if that number exists in the hand
+            if (count > 0)
+            {
+                kickers |= (ushort)(1 << rank);
+            }
+        }
+
+        // Second check if there are any multiples
+        int quadCount = PopCount(quads);
+        int tripCount = PopCount(trips);
+        int pairCount = PopCount(pairs);
+
+        // Debug.Log($"Quads: {Convert.ToString((long)quads, 2)}; {quadCount}");
+        // Debug.Log($"Trips: {Convert.ToString((long)trips, 2)}; {tripCount}");
+        // Debug.Log($"Pairs: {Convert.ToString((long)pairs, 2)}; {pairCount}");
+
+        // Four of a kind check
+        if (quadCount > 0)
+        {
+            // Debug.Log("HERE QUADS!");
+            int quadRank = 0;
+            int kickerRank = 0;
+            for (int rank = 14; rank >= 2; rank--)
+            {
+                // Find the quad rank
+                if (quadRank == 0 && (quads & (1 << (rank - 2))) != 0)
+                    quadRank = rank;
+
+                // Find the kicker rank (largest kicker that isn't the quad)
+                if (kickerRank == 0 && (kickers & (1 << (rank - 2))) != 0 && quadRank != rank)
+                    kickerRank = rank;
+            }
+
+            // Encode and return
+            return (HandRanking.FOUR_OF_A_KIND, EncodeFourOfAKind(quadRank, kickerRank));
+        }
+
+        // Full house check
+        if (tripCount > 0 && pairCount > 0)
+        {
+            // Debug.Log("HERE FULL HOUSE!");
+            int tripRank = 0;
+            int pairRank = 0;
+            for (int rank = 14; rank >= 2; rank--)
+            {
+                // Find the trip rank
+                if (tripRank == 0 && (trips & (1 << (rank - 2))) != 0)
+                    tripRank = rank;
+
+                // Find the pair rank
+                if (pairRank == 0 && (pairs & (1 << (rank - 2))) != 0)
+                    pairRank = rank;
+            }
+
+            // Encode and return
+            return (HandRanking.FULL_HOUSE, EncodeFullHouse(tripRank, pairRank));
+        }
+
+        // Three of a kind check
+        if (tripCount > 0)
+        {
+            // Debug.Log("HERE TRIPS!");
+            int tripRank = 0;
+            int kicker1 = 0;
+            int kicker2 = 0;
+            int kickerCounter = 2;
+            for (int rank = 14; rank >= 2; rank--)
+            {
+                // Find the trip rank
+                if (tripRank == 0 && (trips & (1 << (rank - 2))) != 0)
+                    tripRank = rank;
+
+                // Find the kickers
+                if (kickerCounter > 0 && (kickers & (1 << (rank - 2))) != 0 && tripRank != rank)
+                {
+                    if (kickerCounter == 2)
+                        kicker1 = rank;
+                    else
+                        kicker2 = rank;
+
+                    kickerCounter--;
+                }
+            }
+
+            // Encode and return
+            return (HandRanking.THREE_OF_A_KIND, EncodeThreeOfAKind(tripRank, kicker1, kicker2));
+        }
+
+        // Pair and two pair check
+        if (PopCount(pairs) > 0)
+        {
+            // Debug.Log("HERE PAIRS!");
+            int firstPairRank = 0;
+            int secondPairRank = 0;
+            int pairCounter = 2;
+            int kickerRank = 0;
+            for (int rank = 14; rank >= 2; rank--)
+            {
+                // Find the pairs
+                if (pairCounter > 0 && (pairs & (1 << (rank - 2))) != 0)
+                {
+                    // Debug.Log("PAIRS!");
+                    if (pairCounter == 2)
+                        firstPairRank = rank;
+                    else
+                        secondPairRank = rank;
+
+                    pairCounter--;
+                }
+                // Find the kicker for two pair
+                if (kickerRank == 0 && (kickers & (1 << (rank - 2))) != 0 && firstPairRank != rank && secondPairRank != rank)
+                    kickerRank = rank;
+            }
+
+            if (secondPairRank != 0)
+            {
+                // Two pairs found -> encode and return two pair
+                return (HandRanking.TWO_PAIR, EncodeTwoPair(firstPairRank, secondPairRank, kickerRank));
+            }
+            else
+            {
+                // One pair found -> encode and return pair
+                return (HandRanking.PAIR, EncodePair(firstPairRank, kickers));
+            }
+        }
+
+        // If no multiples found -> return high card value
+        return (HandRanking.HIGH_CARD, EncodeHighCard(kickers));
     }
 
     public static (HandRanking ranking, uint encodedValue) CheckFlush(ulong handBits)
@@ -123,7 +292,7 @@ public class HandEvaluator
             }
         }
 
-        Debug.Log($"Straight checker bits: {Convert.ToString((long)straightRanks, 2)}");
+        // Debug.Log($"Straight checker bits: {Convert.ToString((long)straightRanks, 2)}");
 
         // Check for straight in the bit mask and return the value
         return CheckStraightFromBitMask(straightRanks, false);
@@ -155,17 +324,37 @@ public class HandEvaluator
         if ((bitMask & 0b1000000001111) == 0b1000000001111)
             return (isFromFlush ? HandRanking.STRAIGHT_FLUSH : HandRanking.STRAIGHT, EncodeStraight(5));
 
+        // If no straight found -> return
         return (HandRanking.HIGH_CARD, 0);
     }
 
-    private static void EncodeFourOfAKind(int quadRank, int kicker)
+    private static uint EncodeFourOfAKind(int quadRank, int kicker)
     {
+        uint res = 0;
 
+        // Put the quad rank in the front of the encoded value
+        for (int i = 4; i > 0; i--)
+        {
+            res |= (uint)(quadRank << (i * 4));
+        }
+
+        // Add the kicker
+        res |= (uint)kicker;
+
+        return res;
     }
 
-    private static void EncodeFullHouse(int tripRank, int pairRank)
+    private static uint EncodeFullHouse(int tripRank, int pairRank)
     {
+        uint res = 0;
+        // Debug.Log($"Trips: {tripRank}; Pair: {pairRank}");
+        // Put the trips in the front and the pair in the back of the encoded value
+        for (int i = 4; i >= 0; i--)
+        {
+            res |= (uint)(((i > 1) ? tripRank : pairRank) << (i * 4));
+        }
 
+        return res;
     }
 
     private static uint EncodeStraight(int highestRank)
@@ -181,24 +370,69 @@ public class HandEvaluator
                 res |= 0xE;   // Low Ace
         }
 
-        Debug.Log($"Rank: {highestRank}; Hex value: 0x{res:X}");
+        // Debug.Log($"Rank: {highestRank}; Hex value: 0x{res:X}");
 
         return res;
     }
 
-    private static void EncodeThreeOfAKind(int tripRank, int kicker1, int kicker2)
+    private static uint EncodeThreeOfAKind(int tripRank, int kicker1, int kicker2)
     {
+        uint res = 0;
 
+        // Put the trip rank in the front of the encoded value
+        for (int i = 4; i > 1; i--)
+        {
+            res |= (uint)(tripRank << (i * 4));
+        }
+
+        // Add the kickers
+        res |= (uint)(kicker1 << 4);
+        res |= (uint)kicker2;
+
+        return res;
     }
 
-    private static void EncodeTwoPair(int pairRank1, int pairRank2, int kicker)
+    private static uint EncodeTwoPair(int pairRank1, int pairRank2, int kicker)
     {
+        uint res = 0;
 
+        // Put the larger pair in the front and the smaller pair bahind it in the encoded value
+        for (int i = 4; i >= 1; i--)
+        {
+            res |= (uint)(((i > 2) ? pairRank1 : pairRank2) << (i * 4));
+        }
+
+        // Add the kicker
+        res |= (uint)kicker;
+
+        return res;
     }
 
-    private static void EncodePair(int pairRank, ushort kickers)
+    private static uint EncodePair(int pairRank, ushort kickers)
     {
+        uint res = 0;
 
+        // Put the pair rank in the front of the encoded value
+        for (int i = 4; i > 2; i--)
+        {
+            res |= (uint)(pairRank << (i * 4));
+        }
+
+        // Handle kicker parsing and adding to the back of the encoded value
+        int counter = 2;
+
+        for (int rank = 14; rank >= 2; rank--)
+        {
+            if ((kickers & (1 << (rank - 2))) != 0 && pairRank != rank)
+            {
+                res |= (uint)(rank << (counter * 4));
+                if (counter == 0)
+                    break;
+                counter--;
+            }
+        }
+
+        return res;
     }
 
     private static uint EncodeHighCard(ushort cards)
@@ -222,7 +456,7 @@ public class HandEvaluator
             }
         }
 
-        Debug.Log($"Cards: {Convert.ToString((int)cards, 2)}; Hex value for high card or flush: 0x{res:X}");
+        // Debug.Log($"Cards: {Convert.ToString((int)cards, 2)}; Hex value for high card or flush: 0x{res:X}");
 
         return res;
     }
