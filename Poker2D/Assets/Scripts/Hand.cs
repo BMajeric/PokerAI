@@ -59,6 +59,8 @@ public class Hand
         // Delete card data from collections
         CardGameObjects.Clear();
         Cards.Clear();
+        HandStrength = HandRanking.HIGH_CARD;
+        EncodedStrengthValue = 0;
     }
 
     public void CalculateHandStrength(List<Card> communityCards)

@@ -146,6 +146,9 @@ public class GameManager : MonoBehaviour
     public void EndRound()
     {
         // TODO: Remove player and community cards and animate it
+        _player.ClearPlayerHand();
+        _opponent.ClearPlayerHand();
+        _table.Clear();
     }
 
     private Dictionary<string, Sprite> LoadCardSprites(string folderName)
