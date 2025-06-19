@@ -7,6 +7,7 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject _flopButton;
     [SerializeField] private GameObject _turnButton;
     [SerializeField] private GameObject _riverButton;
+    [SerializeField] private GameObject _nextRoundButton;
 
     private GameManager _gameManager;
 
@@ -40,7 +41,16 @@ public class ButtonManager : MonoBehaviour
     {
         _gameManager.DealRiver();
         _riverButton.SetActive(false);
+        _nextRoundButton.SetActive(true);
         _gameManager.ShowOpponentHand();
         _gameManager.CalculatePlayersHandStrength();
+    }
+
+    public void NextRoundButtonHandler()
+    {
+        _gameManager.EndRound();
+        _gameManager.StartRound();
+        _nextRoundButton.SetActive(false);
+        _flopButton.SetActive(true);
     }
 }

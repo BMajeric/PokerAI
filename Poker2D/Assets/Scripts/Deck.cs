@@ -49,8 +49,8 @@ public class Deck
 
     public Card DrawCard()
     {
-        // If there are no cards in the deck create a new one
-        if (_cards.Count == 0)
+        // If deck would need to be reshuffled mid dealing, reshuffle it before to prevent duplicate cards
+        if (_cards.Count < 9)
         {
             GenerateDeck();
             Shuffle();

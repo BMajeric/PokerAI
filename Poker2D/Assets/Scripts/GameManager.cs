@@ -143,6 +143,11 @@ public class GameManager : MonoBehaviour
         StartCoroutine(_opponent.GetHand().RevealHandAnimated());
     }
 
+    public void EndRound()
+    {
+        // TODO: Remove player and community cards and animate it
+    }
+
     private Dictionary<string, Sprite> LoadCardSprites(string folderName)
     {
         Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
