@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
+using System;
 
 public class Hand
 {
@@ -102,4 +103,36 @@ public class Hand
     {
         return Cards.Count;
     }
+
+    // Override comparison methods to use in operator override
+    public int CompareTo(Hand other)
+    {
+        if (other == null) return 1;
+
+        int rankComparison = HandStrength.CompareTo(other.HandStrength);
+        if (rankComparison != 0)
+            return rankComparison;
+
+        return EncodedStrengthValue.CompareTo(other.EncodedStrengthValue);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Hand other)
+            return HandStrength == other.HandStrength && EncodedStrengthValue == other.EncodedStrengthValue;
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(HandStrength, EncodedStrengthValue);
+    }
+
+    // Override comparison operators for easier hand comparison
+    public static bool operator <(Hand h1, Hand h2) => h1.CompareTo(h2) < 0;
+    public static bool operator >(Hand h1, Hand h2) => h1.CompareTo(h2) > 0;
+    public static bool operator <=(Hand h1, Hand h2) => h1.CompareTo(h2) <= 0;
+    public static bool operator >=(Hand h1, Hand h2) => h1.CompareTo(h2) >= 0;
+    public static bool operator ==(Hand h1, Hand h2) => Equals(h1, h2);
+    public static bool operator !=(Hand h1, Hand h2) => !Equals(h1, h2);
 }
