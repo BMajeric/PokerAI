@@ -43,7 +43,7 @@ public class ButtonManager : MonoBehaviour
         _riverButton.SetActive(false);
         _nextRoundButton.SetActive(true);
         _gameManager.ShowOpponentHand();
-        _gameManager.CalculatePlayersHandStrength();
+        _gameManager.ComparePlayersHandStrength();
     }
 
     public void NextRoundButtonHandler()

@@ -44,10 +44,10 @@ public class GameManager : MonoBehaviour
         _gameState = GameState.ROUND_START;
 
         // Deal player and opponent hands
-        StartCoroutine(DealHands());
+        StartCoroutine(DealHandsCoroutine());
     }
 
-    private IEnumerator DealHands()
+    private IEnumerator DealHandsCoroutine()
     {
         // Hand dealing
         for (int i = 0; i < _handCardTransforms.Count; i++)
@@ -133,9 +133,35 @@ public class GameManager : MonoBehaviour
         AnimateCardDraw(riverCardGameObject.transform, _riverCardTransform);
     }
 
-    public void CalculatePlayersHandStrength()
+    public void ComparePlayersHandStrength()
     {
+        // Calculate hand strength of the player
         _player.GetHand().CalculateHandStrength(_table.CommunityCards);
+        Debug.Log($"Player hand ranking: {_player.GetHand().HandStrength}; value = {_player.GetHand().EncodedStrengthValue}");
+
+        // Caluclate hand strength of the opponent
+        _opponent.GetHand().CalculateHandStrength(_table.CommunityCards);
+        Debug.Log($"Opponent hand ranking: {_opponent.GetHand().HandStrength}; value = {_opponent.GetHand().EncodedStrengthValue}");
+
+        // Determine the winner
+        Player roundWinner;
+        string winnerName = "";
+        if (_player.GetHand() > _opponent.GetHand())
+        {
+            roundWinner = _player;
+            winnerName = "player";
+        }
+        else if (_player.GetHand() < _opponent.GetHand())
+        {
+            roundWinner = _opponent;
+            winnerName = "opponent";
+        }
+        else
+        {
+            roundWinner = null;
+            winnerName = "tie";
+        }
+        Debug.Log($"Winner of the round: {winnerName}");
     }
 
     public void ShowOpponentHand()
@@ -145,7 +171,8 @@ public class GameManager : MonoBehaviour
 
     public void EndRound()
     {
-        // TODO: Remove player and community cards and animate it
+        _gameState = GameState.ROUND_END;
+        // TODO: Animate
         _player.ClearPlayerHand();
         _opponent.ClearPlayerHand();
         _table.Clear();
