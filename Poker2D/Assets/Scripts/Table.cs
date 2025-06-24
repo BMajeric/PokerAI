@@ -6,6 +6,7 @@ public class Table
 {
     public List<Card> CommunityCards { get; private set; }
     public List<GameObject> CommunityCardGameObjects { get; private set; }
+    public int Pot { get; private set; }
 
     public Table()
     {
@@ -36,5 +37,10 @@ public class Table
         // Delete card data from collections
         CommunityCardGameObjects.Clear();
         CommunityCards.Clear();
+    }
+
+    public void AddChipsToPot(int chips)
+    {
+        Pot += chips;
     }
 }

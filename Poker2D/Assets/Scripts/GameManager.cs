@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     private Player _opponent;
     private Table _table;
 
+    private readonly int smallBlind = 25;
+    private readonly int bigBlind = 50;
+
     private GameState _gameState;
 
     void Start()
@@ -29,8 +32,8 @@ public class GameManager : MonoBehaviour
         _deck = new Deck(cardSprites);
 
         // Create player and opponent
-        _player = new Player();
-        _opponent = new Player();
+        _player = new Player(false);
+        _opponent = new Player(true);
 
         // Create table for community cards
         _table = new Table();
