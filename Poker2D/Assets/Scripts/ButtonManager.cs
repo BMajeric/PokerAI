@@ -1,5 +1,8 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.UI;
+using TMPro;
+using UnityEngine.EventSystems;
 
 public class ButtonManager : MonoBehaviour
 {
@@ -8,12 +11,27 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject _turnButton;
     [SerializeField] private GameObject _riverButton;
     [SerializeField] private GameObject _nextRoundButton;
+    [SerializeField] private TMP_InputField _bettingInputField;
+    [SerializeField] private Slider _bettingSlider;
 
     private GameManager _gameManager;
+
+    private bool _isUpdatingFromSlider = false;
+    private bool _isUpdatingFromInput = false;
 
     private void Awake()
     {
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
+
+    private void Start()
+    {
+        // Initialize the input field with the slider's value
+        UpdateBettingInputField((int)_bettingSlider.value);
+
+        _bettingSlider.onValueChanged.AddListener(OnBettingSliderValueChanged);
+
+        _bettingInputField.onValueChanged.AddListener(OnBettingInputFieldValueChanged);
     }
 
     public void StartButtonHandler()
@@ -53,4 +71,78 @@ public class ButtonManager : MonoBehaviour
         _nextRoundButton.SetActive(false);
         _flopButton.SetActive(true);
     }
+
+    public void FoldButtonHandler()
+    {
+
+    }
+    
+    public void CheckButtonHandler()
+    {
+
+    }
+
+    public void CallButtonHandler()
+    {
+
+    }
+
+    public void RaiseButtonHandler()
+    {
+
+    }
+
+    public void BettingSliderHandler()
+    {
+
+    }
+
+    private void OnBettingSliderValueChanged(float value)
+    {
+        if (_isUpdatingFromInput) return;
+
+        _isUpdatingFromSlider = true;
+        UpdateBettingInputField((int)value);
+        _isUpdatingFromSlider = false;
+    }
+
+    private void UpdateBettingInputField(int value)
+    {
+        _bettingInputField.text = $"${value}";
+        StartCoroutine(SetCaretNextFrameCoroutine());
+    }
+
+    private void OnBettingInputFieldValueChanged(string input)
+    {
+        if (_isUpdatingFromSlider) return;
+
+        _isUpdatingFromInput = true;
+
+        string sanitizedInput = input.Replace("$", "").Trim();
+
+        if (int.TryParse(sanitizedInput, out int parsedValue))
+        {
+            parsedValue = Mathf.Clamp(parsedValue, (int)_bettingSlider.minValue, (int)_bettingSlider.maxValue);
+            _bettingSlider.value = parsedValue;
+            _bettingInputField.text = $"${parsedValue}";
+            Debug.Log(_bettingInputField.text.Length);
+
+            StartCoroutine(SetCaretNextFrameCoroutine());
+        } 
+        else if (string.IsNullOrEmpty(sanitizedInput))
+        {
+            _bettingInputField.text = "$";
+            _bettingSlider.value = _bettingSlider.minValue;
+            StartCoroutine(SetCaretNextFrameCoroutine());
+        }
+
+        _isUpdatingFromInput = false;
+    }
+
+    private IEnumerator SetCaretNextFrameCoroutine()
+    {
+        yield return null; // Wait 1 frame
+        _bettingInputField.caretPosition = _bettingInputField.text.Length;
+    }
+
 }
