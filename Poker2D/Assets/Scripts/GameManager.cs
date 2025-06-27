@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     private OpponentAISimple _opponent;
     private Table _table;
 
+    private TurnManager _turnManager;
+
     private readonly int smallBlind = 25;
     private readonly int bigBlind = 50;
 
@@ -37,6 +39,8 @@ public class GameManager : MonoBehaviour
 
         // Create table for community cards
         _table = new Table();
+
+        _turnManager = new TurnManager(this, _player, _opponent, _table);
 
         // StartRound();
     }
@@ -120,6 +124,7 @@ public class GameManager : MonoBehaviour
 
         // Animate card dealing
         AnimateCardDraw(turnCardGameObject.transform, _turnCardTransform);
+
     }
 
     public void DealRiver()
