@@ -2,10 +2,10 @@ using UnityEngine;
 
 public enum GameState
 {
-    ROUND_START,
+    PRE_FLOP,
     FLOP,
     TURN,
     RIVER,
-    BETTING,
+    SHOWDOWN,
     ROUND_END
 }

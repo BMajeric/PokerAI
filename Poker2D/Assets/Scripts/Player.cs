@@ -3,17 +3,14 @@ using System.Collections.Generic;
 
 public class Player
 {
-    public bool IsBigBlind;
-
     private readonly Hand _hand;
     // TODO: Add chips
     private int _chips;
 
-    public Player(bool isBigBlind)
+    public Player()
     {
         _hand = new Hand();
         _chips = 2500;
-        IsBigBlind = isBigBlind;
     }
 
     public void ReceiveCard(Card card, GameObject cardGO, bool isFaceUp)

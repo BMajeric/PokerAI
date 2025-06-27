@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     private Deck _deck;
 
     private Player _player;
-    private Player _opponent;
+    private OpponentAISimple _opponent;
     private Table _table;
 
     private readonly int smallBlind = 25;
@@ -32,8 +32,8 @@ public class GameManager : MonoBehaviour
         _deck = new Deck(cardSprites);
 
         // Create player and opponent
-        _player = new Player(false);
-        _opponent = new Player(true);
+        _player = new Player();
+        _opponent = new OpponentAISimple();
 
         // Create table for community cards
         _table = new Table();
@@ -44,7 +44,9 @@ public class GameManager : MonoBehaviour
     public void StartRound()
     {
         // Set the game state 
-        _gameState = GameState.ROUND_START;
+        _gameState = GameState.PRE_FLOP;
+
+        // Handle blinds
 
         // Deal player and opponent hands
         StartCoroutine(DealHandsCoroutine());

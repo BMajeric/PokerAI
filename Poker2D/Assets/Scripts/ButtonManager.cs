@@ -74,26 +74,35 @@ public class ButtonManager : MonoBehaviour
 
     public void FoldButtonHandler()
     {
+        // Start game manager function to signal fold (animating card push)
+
+        // Signal to opponent that they win
+
+        // Go to start of the next round
 
     }
     
     public void CheckButtonHandler()
     {
+        // Go to next game state
 
     }
 
     public void CallButtonHandler()
     {
+        // Add money to the player's pot and game pot
+
+        // Go to next game state
 
     }
 
     public void RaiseButtonHandler()
     {
+        // Check if slider and input field value is > 0, return if not
 
-    }
+        // Add the amount of chips set in the slider and input field to the player's pot and game pot
 
-    public void BettingSliderHandler()
-    {
+        // Hand control over to the opponent
 
     }
 
