@@ -1,27 +1,40 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class ButtonManager : MonoBehaviour
 {
-    [SerializeField] private GameObject _startButton;
-    [SerializeField] private GameObject _flopButton;
-    [SerializeField] private GameObject _turnButton;
-    [SerializeField] private GameObject _riverButton;
-    [SerializeField] private GameObject _nextRoundButton;
+    [SerializeField] private Button _startButton;
+    [SerializeField] private Button _flopButton;
+    [SerializeField] private Button _turnButton;
+    [SerializeField] private Button _riverButton;
+    [SerializeField] private Button _nextRoundButton;
+
+    [SerializeField] private Button _foldButton;
+    [SerializeField] private Button _checkButton;
+    [SerializeField] private Button _callButton;
+    [SerializeField] private Button _raiseButton;
     [SerializeField] private TMP_InputField _bettingInputField;
     [SerializeField] private Slider _bettingSlider;
 
     private GameManager _gameManager;
+    private TurnManager _turnManager;
 
     private bool _isUpdatingFromSlider = false;
     private bool _isUpdatingFromInput = false;
 
+    public event Action OnPlayerFolded;
+    public event Action OnPlayerChecked;
+    public event Action OnPlayerCalled;
+    public event Action<int> OnPlayerRaised;
+
     private void Awake()
     {
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        _turnManager = GameObject.Find("TurnManager").GetComponent<TurnManager>();
     }
 
     private void Start()
@@ -29,81 +42,106 @@ public class ButtonManager : MonoBehaviour
         // Initialize the input field with the slider's value
         UpdateBettingInputField((int)_bettingSlider.value);
 
+        // Subscribe functions to UI element events
+        _foldButton.onClick.AddListener(FoldButtonHandler);
+        _callButton.onClick.AddListener(CallButtonHandler);
+        _checkButton.onClick.AddListener(CheckButtonHandler);
+        _raiseButton.onClick.AddListener(RaiseButtonHandler);
         _bettingSlider.onValueChanged.AddListener(OnBettingSliderValueChanged);
-
         _bettingInputField.onValueChanged.AddListener(OnBettingInputFieldValueChanged);
+    }
+
+    public void EnablePlayerBettingUI()
+    {
+        _foldButton.gameObject.SetActive(true);
+        _checkButton.gameObject.SetActive(true);
+        _callButton.gameObject.SetActive(true);
+        _raiseButton.gameObject.SetActive(true);
+        _bettingInputField.gameObject.SetActive(true);
+        _bettingSlider.gameObject.SetActive(true);
+    }
+
+    public void DisablePlayerBettingUI()
+    {
+        _foldButton.gameObject.SetActive(false);
+        _checkButton.gameObject.SetActive(false);
+        _callButton.gameObject.SetActive(false);
+        _raiseButton.gameObject.SetActive(false);
+        _bettingInputField.gameObject.SetActive(false);
+        _bettingSlider.gameObject.SetActive(false);
     }
 
     public void StartButtonHandler()
     {
         _gameManager.StartRound();
-        _startButton.SetActive(false);
-        _flopButton.SetActive(true);
+        _startButton.gameObject.SetActive(false);
+        _flopButton.gameObject.SetActive(true);
     }
 
     public void FlopButtonHandler()
     {
         _gameManager.DealFlop();
-        _flopButton.SetActive(false);
-        _turnButton.SetActive(true);
+        _flopButton.gameObject.SetActive(false);
+        _turnButton.gameObject.SetActive(true);
     }
 
     public void TurnButtonHandler()
     {
         _gameManager.DealTurn();
-        _turnButton.SetActive(false);
-        _riverButton.SetActive(true);
+        _turnButton.gameObject.SetActive(false);
+        _riverButton.gameObject.SetActive(true);
     }
 
     public void RiverButtonHandler()
     {
         _gameManager.DealRiver();
-        _riverButton.SetActive(false);
-        _nextRoundButton.SetActive(true);
+        _riverButton.gameObject.SetActive(false);
+        _nextRoundButton.gameObject.SetActive(true);
         _gameManager.ShowOpponentHand();
         _gameManager.ComparePlayersHandStrength();
     }
 
     public void NextRoundButtonHandler()
     {
-        _gameManager.EndRound();
         _gameManager.StartRound();
-        _nextRoundButton.SetActive(false);
-        _flopButton.SetActive(true);
+        _nextRoundButton.gameObject.SetActive(false);
+        _flopButton.gameObject.SetActive(true);
     }
 
     public void FoldButtonHandler()
     {
-        // Start game manager function to signal fold (animating card push)
+        // Signal player fold
+        OnPlayerFolded?.Invoke();
 
-        // Signal to opponent that they win
-
-        // Go to start of the next round
-
+        // Disable betting UI
+        DisablePlayerBettingUI();
     }
     
     public void CheckButtonHandler()
     {
-        // Go to next game state
+        // Signal player check
+        OnPlayerChecked?.Invoke();
 
+        // Disable betting UI
+        DisablePlayerBettingUI();
     }
 
     public void CallButtonHandler()
     {
-        // Add money to the player's pot and game pot
+        // Signal player call
+        OnPlayerCalled?.Invoke();
 
-        // Go to next game state
-
+        // Disable betting UI
+        DisablePlayerBettingUI();
     }
 
     public void RaiseButtonHandler()
     {
-        // Check if slider and input field value is > 0, return if not
+        // Signal player raise with amount raised
+        OnPlayerRaised?.Invoke((int)_bettingSlider.value);
 
-        // Add the amount of chips set in the slider and input field to the player's pot and game pot
-
-        // Hand control over to the opponent
-
+        // Disable betting UI
+        DisablePlayerBettingUI();
     }
 
     private void OnBettingSliderValueChanged(float value)
@@ -150,6 +188,7 @@ public class ButtonManager : MonoBehaviour
 
     private IEnumerator SetCaretNextFrameCoroutine()
     {
+        // Needed to move the line that should blink at the end of text to end of text (possible bug due to the "$" sign)
         yield return null; // Wait 1 frame
         _bettingInputField.caretPosition = _bettingInputField.text.Length;
     }

@@ -23,7 +23,12 @@ public class GameManager : MonoBehaviour
     private readonly int smallBlind = 25;
     private readonly int bigBlind = 50;
 
-    private GameState _gameState;
+    private bool _isPlayerBigBlind = false;
+
+    private void Awake()
+    {
+        _turnManager = GameObject.Find("TurnManager").GetComponent<TurnManager>();
+    }
 
     void Start()
     {
@@ -40,17 +45,20 @@ public class GameManager : MonoBehaviour
         // Create table for community cards
         _table = new Table();
 
-        _turnManager = new TurnManager(this, _player, _opponent, _table);
+        _turnManager.InitializeTurnManager(_player, _opponent, _table);
+
+        _turnManager.OnRoundEnded += EndRound;
 
         // StartRound();
     }
 
     public void StartRound()
     {
-        // Set the game state 
-        _gameState = GameState.PRE_FLOP;
-
         // Handle blinds
+        _player.BetChips(_isPlayerBigBlind ? bigBlind : smallBlind);
+        _opponent.BetChips(_isPlayerBigBlind ? smallBlind : bigBlind);
+
+        _turnManager.StartTurn();
 
         // Deal player and opponent hands
         StartCoroutine(DealHandsCoroutine());
@@ -92,9 +100,6 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator DealFlopCoroutine()
     {
-        // Set the game state
-        _gameState = GameState.FLOP;
-
         for (int i = 0; i < _flopCardTransforms.Count; i++)
         {
             // Create card and card game object
@@ -112,9 +117,6 @@ public class GameManager : MonoBehaviour
 
     public void DealTurn()
     {
-        // Set the game state
-        _gameState = GameState.TURN;
-
         // Create card and card game object
         Card turnCard = _deck.DrawCard();
         GameObject turnCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
@@ -129,9 +131,6 @@ public class GameManager : MonoBehaviour
 
     public void DealRiver()
     {
-        // Set the game state
-        _gameState = GameState.RIVER;
-
         // Create card and card game object
         Card riverCard = _deck.DrawCard();
         GameObject riverCardGameObject = Instantiate(_cardPrefab, Vector3.zero, Quaternion.identity);
@@ -179,9 +178,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(_opponent.GetHand().RevealHandAnimated());
     }
 
-    public void EndRound()
+    public void EndRound(Player winner)
     {
-        _gameState = GameState.ROUND_END;
         // TODO: Animate
         _player.ClearPlayerHand();
         _opponent.ClearPlayerHand();

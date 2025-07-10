@@ -5,12 +5,12 @@ public class Player
 {
     private readonly Hand _hand;
     // TODO: Add chips
-    private int _chips;
+    public int Chips { get; private set; }
 
     public Player()
     {
         _hand = new Hand();
-        _chips = 2500;
+        Chips = 2500;
     }
 
     public void ReceiveCard(Card card, GameObject cardGO, bool isFaceUp)
@@ -31,6 +31,16 @@ public class Player
     public Hand GetHand()
     {
         return _hand;
+    }
+
+    public void AddChips(int chips)
+    {
+        Chips += chips;
+    }
+
+    public void BetChips(int chips)
+    {
+        Chips -= chips;
     }
 
 }
