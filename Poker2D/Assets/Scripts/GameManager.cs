@@ -48,6 +48,7 @@ public class GameManager : MonoBehaviour
         _turnManager.InitializeTurnManager(_player, _opponent, _table);
 
         _turnManager.OnRoundEnded += EndRound;
+        _turnManager.OnGameStateChanged += HandleGameStateChange;
 
         // StartRound();
     }
@@ -58,7 +59,8 @@ public class GameManager : MonoBehaviour
         _player.BetChips(_isPlayerBigBlind ? bigBlind : smallBlind);
         _opponent.BetChips(_isPlayerBigBlind ? smallBlind : bigBlind);
 
-        _turnManager.StartTurn();
+        // Small blind starts the pre-flop
+        _turnManager.StartRound(!_isPlayerBigBlind, _isPlayerBigBlind ? bigBlind : smallBlind, _isPlayerBigBlind ? smallBlind : bigBlind);
 
         // Deal player and opponent hands
         StartCoroutine(DealHandsCoroutine());
@@ -90,6 +92,27 @@ public class GameManager : MonoBehaviour
             AnimateCardDraw(drawnCardGameObject.transform, _handCardTransforms[i]);
 
             yield return new WaitForSeconds(0.25f);
+        }
+    }
+
+    private void HandleGameStateChange(GameState gameState)
+    {
+        if (gameState == GameState.FLOP)
+        {
+            DealFlop();
+        }
+        else if (gameState == GameState.TURN)
+        {
+            DealTurn();
+        }
+        else if (gameState == GameState.RIVER)
+        {
+            DealRiver();
+        }
+        else if (gameState == GameState.SHOWDOWN)
+        {
+            Player winner = ComparePlayersHandStrength();
+            _turnManager.NotifyWinner(winner);
         }
     }
 
@@ -142,7 +165,7 @@ public class GameManager : MonoBehaviour
         AnimateCardDraw(riverCardGameObject.transform, _riverCardTransform);
     }
 
-    public void ComparePlayersHandStrength()
+    public Player ComparePlayersHandStrength()
     {
         // Calculate hand strength of the player
         _player.GetHand().CalculateHandStrength(_table.CommunityCards);
@@ -171,6 +194,7 @@ public class GameManager : MonoBehaviour
             winnerName = "tie";
         }
         Debug.Log($"Winner of the round: {winnerName}");
+        return roundWinner;
     }
 
     public void ShowOpponentHand()
@@ -180,7 +204,7 @@ public class GameManager : MonoBehaviour
 
     public void EndRound(Player winner)
     {
-        // TODO: Animate
+        // TODO: Animate, handle null winner
         _player.ClearPlayerHand();
         _opponent.ClearPlayerHand();
         _table.Clear();
@@ -209,6 +233,7 @@ public class GameManager : MonoBehaviour
     {
         // Unsubscribe from all events
         _turnManager.OnRoundEnded -= EndRound;
+        _turnManager.OnGameStateChanged -= HandleGameStateChange;
     }
 
 }

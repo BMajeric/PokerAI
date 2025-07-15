@@ -18,13 +18,16 @@ public class TurnManager : MonoBehaviour
 
     public int Pot => _playerPot + _opponentPot;
 
-    private bool _isPlayersTurn = true;
+    private bool _isPlayersTurn;
+    private bool _isPlayersTurnOnRoundStart;
 
     private bool _playerPlayed;
     private bool _opponentPlayed;
 
-    // Actions
+    // Events
     public event Action<Player> OnRoundEnded;
+    public event Action<GameState> OnGameStateChanged;
+    public event Action<Player> OnWinnerDetermined;
 
     private void Awake()
     {
@@ -39,6 +42,7 @@ public class TurnManager : MonoBehaviour
         _buttonManager.OnPlayerChecked += HandlePlayerChecked;
         _buttonManager.OnPlayerCalled += HandlePlayerCalled;
         _buttonManager.OnPlayerRaised += HandlePlayerRaised;
+        OnWinnerDetermined += HandleShowdownConcluded;
     }
 
 
@@ -50,73 +54,150 @@ public class TurnManager : MonoBehaviour
         _table = table;
     }
 
+    public void StartRound(bool isPlayersTurn, int playerPot, int opponentPot)
+    {
+        _isPlayersTurn = isPlayersTurn;
+        _isPlayersTurnOnRoundStart = isPlayersTurn;
+        _playerPot = playerPot;
+        _opponentPot = opponentPot;
+
+        _gameState = GameState.PRE_FLOP;
+
+        StartTurn();
+    }
+
     public void StartTurn()
     {
         if (_isPlayersTurn)
-            HandleAction(_player);
-        else
-            HandleAction(_opponent);
+            _buttonManager.EnablePlayerBettingUI();
+        // else
+            // Opponent action
     }
 
-    private void HandleAction(Player actor)
+    private void HandleAction(PlayerAction action, int amount)
     {
-        if (actor == _player)
+        if (_isPlayersTurn)
         {
-            _buttonManager.EnablePlayerBettingUI();
-            Debug.Log($"Player credit: {_player.Chips}");
+            _playerPlayed = true;
+            _playerPot += amount;
         }
         else
         {
-            // Give opponent AI the data needed to make a decision
+            _opponentPlayed = true;
+            _opponentPot += amount;
         }
+
+        // Handle logic for folding
+        if (action == PlayerAction.FOLD)
+        {
+            Player winner = _isPlayersTurn ? _opponent : _player;
+            EndRoundWithWinner(winner);
+            // Debug.Log($"OPPONENT CHIPS NOW: {_opponent.Chips}");
+        }
+
+        // Proceed to next round after both players acted and pot amounts are matched
+        if (_playerPlayed && _opponentPlayed && _playerPot == _opponentPot)
+        {
+            ProceedToNextPhase();
+            return;
+        }
+
+        // Otherwise, pass the turn to the next player
+        _isPlayersTurn = !_isPlayersTurn;
+        StartTurn();
+    }
+
+    private void ProceedToNextPhase()
+    {
+        // Switch game state
+        if (_gameState == GameState.PRE_FLOP)
+        {
+            _gameState = GameState.FLOP;
+        }
+        else if (_gameState == GameState.FLOP)
+        {
+            _gameState = GameState.TURN;
+        }
+        else if (_gameState == GameState.TURN)
+        {
+            _gameState = GameState.RIVER;
+        }
+        else if (_gameState == GameState.RIVER)
+        {
+            _gameState = GameState.SHOWDOWN;
+        }
+
+        // Notify others that the game state changed
+        OnGameStateChanged?.Invoke(_gameState);
+
+        // Start next phase
+        _isPlayersTurn = _isPlayersTurnOnRoundStart;
+        StartTurn();
+    }
+
+    private void HandleShowdownConcluded(Player winner)
+    {
+        EndRoundWithWinner(winner);
+    }
+
+    private void EndRoundWithWinner(Player winner)
+    {
+        // Distribute chips
+        if (winner == null)
+        {
+            _player.AddChips(_playerPot);
+            _opponent.AddChips(_opponentPot);
+        }
+        else
+        {
+            winner.AddChips(Pot);
+        }
+
+        // Notify that the round has ended
+        OnRoundEnded?.Invoke(winner);
     }
 
     private void HandlePlayerFolded()
     {
         Debug.Log("Player folded!");
-        // Tell opponent AI player folded
 
-        // Add chips from pot to opponent
-        _opponent.AddChips(Pot);
-
-        // End round
-        OnRoundEnded?.Invoke(_opponent);
+        HandleAction(PlayerAction.FOLD, 0);
     }
 
     private void HandlePlayerChecked()
     {
         Debug.Log("Player checked!");
-        if (_opponentPlayed)
-        {
-            // Move on to next round state
-        }
-        else
-        {
-            // Update last player action
 
-            // Pass turn to opponent
-        }
+        HandleAction(PlayerAction.CHECK, 0);
     }
 
     private void HandlePlayerCalled()
     {
         Debug.Log("Player called!");
-        // Update pot
-        int betAmount = _opponentPot - _playerPot;
-        _player.BetChips(betAmount);
-        _playerPot += betAmount;
 
-        // Move on to next round state
+        HandleAction(PlayerAction.CALL, _opponentPot - _playerPot);
     }
 
     private void HandlePlayerRaised(int amount)
     {
         Debug.Log($"Player raised {amount}!");
-        // Update pot
-        _player.BetChips(amount);
-        _playerPot += amount;
 
-        // Pass turn to opponoent
+        HandleAction(PlayerAction.RAISE, amount);
+    }
+
+    public void NotifyWinner(Player winner)
+    {
+        OnWinnerDetermined?.Invoke(winner);
+    }
+
+    private GameStateSnapshot GetGameState()
+    {
+        return new GameStateSnapshot
+        {
+            PlayerPot = _playerPot,
+            OpponentPot = _opponentPot,
+            CommunityCards = _table.CommunityCards
+        };
     }
 
     private void OnDestroy()
