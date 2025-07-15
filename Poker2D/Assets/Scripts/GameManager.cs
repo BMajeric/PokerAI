@@ -205,4 +205,10 @@ public class GameManager : MonoBehaviour
         cardTransform.DOLocalRotate(goalTransform.rotation.eulerAngles, 0.5f);
     }
 
+    private void OnDestroy()
+    {
+        // Unsubscribe from all events
+        _turnManager.OnRoundEnded -= EndRound;
+    }
+
 }

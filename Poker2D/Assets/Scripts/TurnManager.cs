@@ -26,6 +26,21 @@ public class TurnManager : MonoBehaviour
     // Actions
     public event Action<Player> OnRoundEnded;
 
+    private void Awake()
+    {
+        // Initialize managers
+        _buttonManager = GameObject.Find("ButtonManager").GetComponent<ButtonManager>();
+    }
+
+    private void Start()
+    {
+        // Subscribe to necessary events
+        _buttonManager.OnPlayerFolded += HandlePlayerFolded;
+        _buttonManager.OnPlayerChecked += HandlePlayerChecked;
+        _buttonManager.OnPlayerCalled += HandlePlayerCalled;
+        _buttonManager.OnPlayerRaised += HandlePlayerRaised;
+    }
+
 
     public void InitializeTurnManager(Player player, OpponentAISimple opponent, Table table)
     {
@@ -33,15 +48,6 @@ public class TurnManager : MonoBehaviour
         _player = player;
         _opponent = opponent;
         _table = table;
-        
-        // Initialize managers
-        _buttonManager = GameObject.Find("ButtonManager").GetComponent<ButtonManager>();
-
-        // Subscribe to necesarry events
-        _buttonManager.OnPlayerFolded += HandlePlayerFolded;
-        _buttonManager.OnPlayerChecked += HandlePlayerChecked;
-        _buttonManager.OnPlayerCalled += HandlePlayerCalled;
-        _buttonManager.OnPlayerRaised += HandlePlayerRaised;
     }
 
     public void StartTurn()
@@ -111,6 +117,15 @@ public class TurnManager : MonoBehaviour
         _playerPot += amount;
 
         // Pass turn to opponoent
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from all events
+        _buttonManager.OnPlayerFolded -= HandlePlayerFolded;
+        _buttonManager.OnPlayerChecked -= HandlePlayerChecked;
+        _buttonManager.OnPlayerCalled -= HandlePlayerCalled;
+        _buttonManager.OnPlayerRaised -= HandlePlayerRaised;
     }
 
 }
