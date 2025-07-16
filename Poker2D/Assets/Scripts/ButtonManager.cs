@@ -23,6 +23,8 @@ public class ButtonManager : MonoBehaviour
     private GameManager _gameManager;
     private TurnManager _turnManager;
 
+    private Player _player = null;
+
     private bool _isUpdatingFromSlider = false;
     private bool _isUpdatingFromInput = false;
 
@@ -51,8 +53,23 @@ public class ButtonManager : MonoBehaviour
         _bettingInputField.onValueChanged.AddListener(OnBettingInputFieldValueChanged);
     }
 
+    public void GivePlayerInfo(Player player)
+    {
+        _player = player;
+    }
+
     public void EnablePlayerBettingUI()
     {
+        // Update betting slider max value
+        if (_player == null)
+        {
+            Debug.Log("Player not initialized in Button manager!!!");
+            return;
+        }
+
+        _bettingSlider.maxValue = _player.Chips;
+        Debug.Log($"Player chips for betting: {_player.Chips}");
+
         _foldButton.gameObject.SetActive(true);
         _checkButton.gameObject.SetActive(true);
         _callButton.gameObject.SetActive(true);

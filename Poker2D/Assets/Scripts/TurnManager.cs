@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 public class TurnManager : MonoBehaviour
 {
@@ -68,22 +69,26 @@ public class TurnManager : MonoBehaviour
 
     public void StartTurn()
     {
+        Debug.Log($"Is it players turn to act on turn start? {_isPlayersTurn}");
         if (_isPlayersTurn)
             _buttonManager.EnablePlayerBettingUI();
-        // else
-            // Opponent action
+        else
+            AskOpponentForDecision();
     }
 
     private void HandleAction(PlayerAction action, int amount)
     {
+        Debug.Log($"Is it players turn to act? {_isPlayersTurn}");
         if (_isPlayersTurn)
         {
             _playerPlayed = true;
+            _player.BetChips(amount);
             _playerPot += amount;
         }
         else
         {
             _opponentPlayed = true;
+            _opponent.BetChips(amount);
             _opponentPot += amount;
         }
 
@@ -133,6 +138,25 @@ public class TurnManager : MonoBehaviour
         // Start next phase
         _isPlayersTurn = _isPlayersTurnOnRoundStart;
         StartTurn();
+    }
+
+    private void AskOpponentForDecision()
+    {
+        StartCoroutine("AskOpponentForDecisionCoroutine");
+    }
+
+    private IEnumerator AskOpponentForDecisionCoroutine()
+    {
+        // Make a pause to simulate thinking
+        float thinkingTime = UnityEngine.Random.Range(0, 7);
+        yield return new WaitForSeconds(thinkingTime);
+
+        (PlayerAction action, int amount) decision = _opponent.MakeDecision(GetGameState());
+
+        Debug.Log($"Opponent decided to {decision.action}, amount: {decision.amount}");
+
+        // Tell the turn manager what the opponent decided
+        HandleAction(decision.action, decision.amount);
     }
 
     private void HandleShowdownConcluded(Player winner)
@@ -185,6 +209,8 @@ public class TurnManager : MonoBehaviour
         HandleAction(PlayerAction.RAISE, amount);
     }
 
+    // Helper function so that the game manager can notify the turn manager about the winner of the showdown
+    // without the turn manager needing to know about the game manager to avoid circular dependencies
     public void NotifyWinner(Player winner)
     {
         OnWinnerDetermined?.Invoke(winner);

@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     private Table _table;
 
     private TurnManager _turnManager;
+    private ButtonManager _buttonManager;
 
     private readonly int smallBlind = 25;
     private readonly int bigBlind = 50;
@@ -28,6 +29,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         _turnManager = GameObject.Find("TurnManager").GetComponent<TurnManager>();
+        _buttonManager = GameObject.Find("ButtonManager").GetComponent<ButtonManager>();
     }
 
     void Start()
@@ -45,12 +47,15 @@ public class GameManager : MonoBehaviour
         // Create table for community cards
         _table = new Table();
 
+        // Initialize turn manager
         _turnManager.InitializeTurnManager(_player, _opponent, _table);
 
+        // Subscribe to turn manager events
         _turnManager.OnRoundEnded += EndRound;
         _turnManager.OnGameStateChanged += HandleGameStateChange;
 
-        // StartRound();
+        // Initialize player in button manager
+        _buttonManager.GivePlayerInfo(_player);
     }
 
     public void StartRound()
