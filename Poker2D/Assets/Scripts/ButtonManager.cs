@@ -58,7 +58,7 @@ public class ButtonManager : MonoBehaviour
         _player = player;
     }
 
-    public void EnablePlayerBettingUI()
+    public void EnablePlayerBettingUI(bool canCheck)
     {
         // Update betting slider max value
         if (_player == null)
@@ -71,11 +71,14 @@ public class ButtonManager : MonoBehaviour
         Debug.Log($"Player chips for betting: {_player.Chips}");
 
         _foldButton.gameObject.SetActive(true);
-        _checkButton.gameObject.SetActive(true);
-        _callButton.gameObject.SetActive(true);
         _raiseButton.gameObject.SetActive(true);
         _bettingInputField.gameObject.SetActive(true);
         _bettingSlider.gameObject.SetActive(true);
+        
+        if (canCheck)
+            _checkButton.gameObject.SetActive(true);
+        else
+            _callButton.gameObject.SetActive(true);
     }
 
     public void DisablePlayerBettingUI()
