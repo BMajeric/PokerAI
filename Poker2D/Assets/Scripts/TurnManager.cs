@@ -132,6 +132,10 @@ public class TurnManager : MonoBehaviour
             _gameState = GameState.SHOWDOWN;
         }
 
+        // Reset who has played their turn
+        _playerPlayed = false;
+        _opponentPlayed = false;
+
         // Notify others that the game state changed
         OnGameStateChanged?.Invoke(_gameState);
 
