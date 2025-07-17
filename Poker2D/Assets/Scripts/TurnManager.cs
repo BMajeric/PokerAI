@@ -139,8 +139,13 @@ public class TurnManager : MonoBehaviour
         // Notify others that the game state changed
         OnGameStateChanged?.Invoke(_gameState);
 
+        // Pass the turn to the player that starts it this round
+        if (_gameState != GameState.SHOWDOWN && _gameState != GameState.ROUND_END)
+            _isPlayersTurn = _isPlayersTurnOnRoundStart;
+        else
+            return;     // Don't go to start turn again if the turns are over
+
         // Start next phase
-        _isPlayersTurn = _isPlayersTurnOnRoundStart;
         StartTurn();
     }
 
