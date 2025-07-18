@@ -8,10 +8,6 @@ using UnityEngine.Events;
 public class ButtonManager : MonoBehaviour
 {
     [SerializeField] private Button _startButton;
-    [SerializeField] private Button _flopButton;
-    [SerializeField] private Button _turnButton;
-    [SerializeField] private Button _riverButton;
-    [SerializeField] private Button _nextRoundButton;
 
     [SerializeField] private Button _foldButton;
     [SerializeField] private Button _checkButton;
@@ -95,73 +91,42 @@ public class ButtonManager : MonoBehaviour
     {
         _gameManager.StartRound();
         _startButton.gameObject.SetActive(false);
-        _flopButton.gameObject.SetActive(true);
-    }
-
-    public void FlopButtonHandler()
-    {
-        _gameManager.DealFlop();
-        _flopButton.gameObject.SetActive(false);
-        _turnButton.gameObject.SetActive(true);
-    }
-
-    public void TurnButtonHandler()
-    {
-        _gameManager.DealTurn();
-        _turnButton.gameObject.SetActive(false);
-        _riverButton.gameObject.SetActive(true);
-    }
-
-    public void RiverButtonHandler()
-    {
-        _gameManager.DealRiver();
-        _riverButton.gameObject.SetActive(false);
-        _nextRoundButton.gameObject.SetActive(true);
-        _gameManager.ShowOpponentHand();
-        _gameManager.ComparePlayersHandStrength();
-    }
-
-    public void NextRoundButtonHandler()
-    {
-        _gameManager.StartRound();
-        _nextRoundButton.gameObject.SetActive(false);
-        _flopButton.gameObject.SetActive(true);
     }
 
     public void FoldButtonHandler()
     {
-        // Signal player fold
-        OnPlayerFolded?.Invoke();
-
         // Disable betting UI
         DisablePlayerBettingUI();
+
+        // Signal player fold
+        OnPlayerFolded?.Invoke();
     }
     
     public void CheckButtonHandler()
     {
-        // Signal player check
-        OnPlayerChecked?.Invoke();
-
         // Disable betting UI
         DisablePlayerBettingUI();
+        
+        // Signal player check
+        OnPlayerChecked?.Invoke();
     }
 
     public void CallButtonHandler()
     {
-        // Signal player call
-        OnPlayerCalled?.Invoke();
-
         // Disable betting UI
         DisablePlayerBettingUI();
+        
+        // Signal player call
+        OnPlayerCalled?.Invoke();
     }
 
     public void RaiseButtonHandler()
     {
-        // Signal player raise with amount raised
-        OnPlayerRaised?.Invoke((int)_bettingSlider.value);
-
         // Disable betting UI
         DisablePlayerBettingUI();
+        
+        // Signal player raise with amount raised
+        OnPlayerRaised?.Invoke((int)_bettingSlider.value);
     }
 
     private void OnBettingSliderValueChanged(float value)

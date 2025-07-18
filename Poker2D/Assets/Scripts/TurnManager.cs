@@ -96,8 +96,9 @@ public class TurnManager : MonoBehaviour
         if (action == PlayerAction.FOLD)
         {
             Player winner = _isPlayersTurn ? _opponent : _player;
-            EndRoundWithWinner(winner);
+            StartCoroutine(EndRoundWithWinnerCoroutine(winner));
             // Debug.Log($"OPPONENT CHIPS NOW: {_opponent.Chips}");
+            return;
         }
 
         // Proceed to next round after both players acted and pot amounts are matched
@@ -140,6 +141,7 @@ public class TurnManager : MonoBehaviour
         OnGameStateChanged?.Invoke(_gameState);
 
         // Pass the turn to the player that starts it this round
+        Debug.Log($"Game State: {_gameState}");
         if (_gameState != GameState.SHOWDOWN && _gameState != GameState.ROUND_END)
             _isPlayersTurn = _isPlayersTurnOnRoundStart;
         else
@@ -151,7 +153,7 @@ public class TurnManager : MonoBehaviour
 
     private void AskOpponentForDecision()
     {
-        StartCoroutine("AskOpponentForDecisionCoroutine");
+        StartCoroutine(AskOpponentForDecisionCoroutine());
     }
 
     private IEnumerator AskOpponentForDecisionCoroutine()
@@ -170,10 +172,10 @@ public class TurnManager : MonoBehaviour
 
     private void HandleShowdownConcluded(Player winner)
     {
-        EndRoundWithWinner(winner);
+        StartCoroutine(EndRoundWithWinnerCoroutine(winner));
     }
 
-    private void EndRoundWithWinner(Player winner)
+    private IEnumerator EndRoundWithWinnerCoroutine(Player winner)
     {
         // Distribute chips
         if (winner == null)
@@ -185,6 +187,9 @@ public class TurnManager : MonoBehaviour
         {
             winner.AddChips(Pot);
         }
+
+        // Add wait to give player a chance to see the enemy cards
+        yield return new WaitForSeconds(8);
 
         // Notify that the round has ended
         OnRoundEnded?.Invoke(winner);
@@ -242,6 +247,7 @@ public class TurnManager : MonoBehaviour
         _buttonManager.OnPlayerChecked -= HandlePlayerChecked;
         _buttonManager.OnPlayerCalled -= HandlePlayerCalled;
         _buttonManager.OnPlayerRaised -= HandlePlayerRaised;
+        OnWinnerDetermined -= HandleShowdownConcluded;
     }
 
 }

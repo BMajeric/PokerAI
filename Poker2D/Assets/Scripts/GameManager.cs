@@ -116,6 +116,7 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.SHOWDOWN)
         {
+            ShowOpponentHand();
             Player winner = ComparePlayersHandStrength();
             _turnManager.NotifyWinner(winner);
         }
