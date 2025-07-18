@@ -18,7 +18,7 @@ public class OpponentAISimple : Player
         float chance = Random.value;
         if (chance <= 0.1)
         {
-            int amount = Random.Range(state.PlayerPot - state.OpponentPot + 1, state.OpponentPot + 1);
+            int amount = Random.Range(state.PlayerPot - state.OpponentPot + 1, Mathf.Min((state.PlayerChips + (state.PlayerPot - state.OpponentPot)), state.OpponentChips) + 1);
             response = (PlayerAction.RAISE, amount);
         }
         else if (chance >= 0.9)

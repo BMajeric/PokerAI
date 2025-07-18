@@ -236,6 +236,8 @@ public class TurnManager : MonoBehaviour
         {
             PlayerPot = _playerPot,
             OpponentPot = _opponentPot,
+            PlayerChips = _player.Chips,
+            OpponentChips = _opponent.Chips,
             CommunityCards = _table.CommunityCards
         };
     }
