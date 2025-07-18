@@ -20,6 +20,7 @@ public class ButtonManager : MonoBehaviour
     private TurnManager _turnManager;
 
     private Player _player = null;
+    private Player _opponent = null;
 
     private bool _isUpdatingFromSlider = false;
     private bool _isUpdatingFromInput = false;
@@ -49,21 +50,26 @@ public class ButtonManager : MonoBehaviour
         _bettingInputField.onValueChanged.AddListener(OnBettingInputFieldValueChanged);
     }
 
-    public void GivePlayerInfo(Player player)
+    public void GivePlayerInfo(Player player, Player opponent)
     {
         _player = player;
+        _opponent = opponent;
     }
 
-    public void EnablePlayerBettingUI(bool canCheck)
+    public void EnablePlayerBettingUI(bool canCheck, int playerBettingSliderMinValue)
     {
-        // Update betting slider max value
-        if (_player == null)
+        if (_player == null || _opponent == null)
         {
-            Debug.Log("Player not initialized in Button manager!!!");
+            Debug.Log("Players not initialized in Button manager!!!");
             return;
         }
 
+        // Update betting slider min and max values
+        _bettingSlider.minValue = playerBettingSliderMinValue;
         _bettingSlider.maxValue = _player.Chips;
+        _bettingSlider.value = playerBettingSliderMinValue;
+
+
         Debug.Log($"Player chips for betting: {_player.Chips}");
 
         _foldButton.gameObject.SetActive(true);

@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
         _turnManager.OnGameStateChanged += HandleGameStateChange;
 
         // Initialize player in button manager
-        _buttonManager.GivePlayerInfo(_player);
+        _buttonManager.GivePlayerInfo(_player, _opponent);
     }
 
     public void StartRound()

@@ -71,7 +71,9 @@ public class TurnManager : MonoBehaviour
     {
         Debug.Log($"Is it players turn to act on turn start? {_isPlayersTurn}");
         if (_isPlayersTurn)
-            _buttonManager.EnablePlayerBettingUI(_opponentPot > _playerPot ? false : true);
+            _buttonManager.EnablePlayerBettingUI(
+                _opponentPot > _playerPot ? false : true, 
+                _opponentPot - _playerPot);
         else
             AskOpponentForDecision();
     }
