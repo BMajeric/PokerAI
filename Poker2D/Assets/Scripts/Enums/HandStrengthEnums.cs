@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public enum HandRanking
 {
     HIGH_CARD,
