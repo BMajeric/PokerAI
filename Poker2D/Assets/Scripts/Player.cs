@@ -4,7 +4,6 @@ using System.Collections.Generic;
 public class Player
 {
     private readonly Hand _hand;
-    // TODO: Add chips
     public int Chips { get; private set; }
 
     public Player()

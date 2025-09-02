@@ -29,6 +29,8 @@ public class TurnManager : MonoBehaviour
     public event Action<Player> OnRoundEnded;
     public event Action<GameState> OnGameStateChanged;
     public event Action<Player> OnWinnerDetermined;
+    public event Action<int> OnPlayerBetUpdateUI;
+    public event Action<int> OnOpponentBetUpdateUI;
 
     private void Awake()
     {
@@ -86,12 +88,18 @@ public class TurnManager : MonoBehaviour
             _playerPlayed = true;
             _player.BetChips(amount);
             _playerPot += amount;
+
+            // Update UI
+            OnPlayerBetUpdateUI.Invoke(amount);
         }
         else
         {
             _opponentPlayed = true;
             _opponent.BetChips(amount);
             _opponentPot += amount;
+
+            // Update UI
+            OnOpponentBetUpdateUI(amount);
         }
 
         // Handle logic for folding

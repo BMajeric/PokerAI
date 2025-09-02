@@ -8,12 +8,18 @@ public class ButtonManager : MonoBehaviour
 {
     [SerializeField] private Button _startButton;
 
+    [Header("Betting UI Inputs")]
     [SerializeField] private Button _foldButton;
     [SerializeField] private Button _checkButton;
     [SerializeField] private Button _callButton;
     [SerializeField] private Button _raiseButton;
     [SerializeField] private TMP_InputField _bettingInputField;
     [SerializeField] private Slider _bettingSlider;
+
+    [Header("Pot Amount UI")]
+    [SerializeField] private TMP_Text _collectivePotUI;
+    [SerializeField] private TMP_Text _playerPotUI;
+    [SerializeField] private TMP_Text _opponentPotUI;
 
     private GameManager _gameManager;
     private TurnManager _turnManager;
@@ -47,6 +53,10 @@ public class ButtonManager : MonoBehaviour
         _raiseButton.onClick.AddListener(RaiseButtonHandler);
         _bettingSlider.onValueChanged.AddListener(OnBettingSliderValueChanged);
         _bettingInputField.onValueChanged.AddListener(OnBettingInputFieldValueChanged);
+
+        // Subscribe to other events
+        _turnManager.OnPlayerBetUpdateUI += ChangePlayerPotValues;
+        _turnManager.OnOpponentBetUpdateUI += ChangeOpponentPotValues;
     }
 
     public void GivePlayerInfo(Player player, Player opponent)
@@ -181,6 +191,20 @@ public class ButtonManager : MonoBehaviour
         // Needed to move the line that should blink at the end of text to end of text (possible bug due to the "$" sign)
         yield return null; // Wait 1 frame
         _bettingInputField.caretPosition = _bettingInputField.text.Length;
+    }
+
+    private void ChangePlayerPotValues(int amount)
+    {
+        string sanitizedInput = _playerPotUI.text.Replace("$", "").Trim();
+        if (int.TryParse(sanitizedInput, out int parsedValue))
+        {
+            _playerPotUI.text = $"${parsedValue + amount}";
+        }
+    }
+
+    private void ChangeOpponentPotValues(int amount)
+    {
+
     }
 
 }
