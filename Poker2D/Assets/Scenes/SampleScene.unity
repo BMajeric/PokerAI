@@ -854,7 +854,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &645487446
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2407,7 +2407,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1261637005
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3366,7 +3366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1783194146
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3699,7 +3699,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2105570372}
   - {fileID: 7353793835313814649}
   - {fileID: 107645348}
   - {fileID: 7353793835402350220}
@@ -3842,11 +3841,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2082448656}
   m_CullTransparentMesh: 1
---- !u!224 &2105570372 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7353793834706001525, guid: 3580c999222b9414b8a668544c94ac0a, type: 3}
-  m_PrefabInstance: {fileID: 2535745181856877368}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2146783974
 GameObject:
   m_ObjectHideFlags: 0
@@ -4211,7 +4205,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 2013787051}
+    m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 157240532752749495, guid: 3580c999222b9414b8a668544c94ac0a, type: 3}
       propertyPath: m_IsActive
@@ -4307,7 +4301,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9077444164211066108, guid: 3580c999222b9414b8a668544c94ac0a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9077444164211066108, guid: 3580c999222b9414b8a668544c94ac0a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -4733,6 +4727,7 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 6972743551289752849}
   - {fileID: 1337590466}
+  - {fileID: 2535745181856877368}
   - {fileID: 2013787051}
   - {fileID: 405639298}
   - {fileID: 7337706358150167623}

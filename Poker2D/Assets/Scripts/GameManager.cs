@@ -53,6 +53,9 @@ public class GameManager : MonoBehaviour
         _turnManager.OnRoundEnded += EndRound;
         _turnManager.OnGameStateChanged += HandleGameStateChange;
 
+        // Subscribe to button related events
+        _buttonManager.OnGameStarted += StartRound;
+
         // Initialize player in button manager
         _buttonManager.GivePlayerInfo(_player, _opponent);
     }
@@ -235,6 +238,7 @@ public class GameManager : MonoBehaviour
         // Unsubscribe from all events
         _turnManager.OnRoundEnded -= EndRound;
         _turnManager.OnGameStateChanged -= HandleGameStateChange;
+        _buttonManager.OnGameStarted -= StartRound;
     }
 
 }

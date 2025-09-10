@@ -30,6 +30,7 @@ public class ButtonManager : MonoBehaviour
     private bool _isUpdatingFromSlider = false;
     private bool _isUpdatingFromInput = false;
 
+    public event Action OnGameStarted;
     public event Action OnPlayerFolded;
     public event Action OnPlayerChecked;
     public event Action OnPlayerCalled;
@@ -47,6 +48,7 @@ public class ButtonManager : MonoBehaviour
         UpdateBettingInputField((int)_bettingSlider.value);
 
         // Subscribe functions to UI element events
+        _startButton.onClick.AddListener(StartButtonHandler);
         _foldButton.onClick.AddListener(FoldButtonHandler);
         _callButton.onClick.AddListener(CallButtonHandler);
         _checkButton.onClick.AddListener(CheckButtonHandler);
@@ -104,8 +106,14 @@ public class ButtonManager : MonoBehaviour
 
     public void StartButtonHandler()
     {
-        _gameManager.StartRound();
+        // Adjust UI
+        _collectivePotUI.gameObject.SetActive(true);
+        _playerPotUI.gameObject.SetActive(true);
+        _opponentPotUI.gameObject.SetActive(true);
         _startButton.gameObject.SetActive(false);
+
+        // Start game
+        OnGameStarted?.Invoke();
     }
 
     public void FoldButtonHandler()
@@ -220,6 +228,13 @@ public class ButtonManager : MonoBehaviour
         {
             _collectivePotUI.text = $"${parsedValue + amount}";
         }
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from events
+        _turnManager.OnPlayerBetUpdateUI -= ChangePlayerPotValues;
+        _turnManager.OnOpponentBetUpdateUI -= ChangeOpponentPotValues;
     }
 
 }
