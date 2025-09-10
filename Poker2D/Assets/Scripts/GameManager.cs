@@ -59,12 +59,8 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
-        // Handle blinds
-        _player.BetChips(_isPlayerBigBlind ? bigBlind : smallBlind);
-        _opponent.BetChips(_isPlayerBigBlind ? smallBlind : bigBlind);
-
         // Small blind starts the pre-flop
-        _turnManager.StartRound(!_isPlayerBigBlind, _isPlayerBigBlind ? bigBlind : smallBlind, _isPlayerBigBlind ? smallBlind : bigBlind);
+        _turnManager.StartRound(!_isPlayerBigBlind, smallBlind, bigBlind);
 
         // Deal player and opponent hands
         StartCoroutine(DealHandsCoroutine());

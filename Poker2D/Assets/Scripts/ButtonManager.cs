@@ -199,12 +199,27 @@ public class ButtonManager : MonoBehaviour
         if (int.TryParse(sanitizedInput, out int parsedValue))
         {
             _playerPotUI.text = $"${parsedValue + amount}";
+            ChangeCollectivePotValue(amount);
         }
     }
 
     private void ChangeOpponentPotValues(int amount)
     {
+        string sanitizedInput = _opponentPotUI.text.Replace("$", "").Trim();
+        if (int.TryParse(sanitizedInput, out int parsedValue))
+        {
+            _opponentPotUI.text = $"${parsedValue + amount}";
+            ChangeCollectivePotValue(amount);
+        }
+    }
 
+    private void ChangeCollectivePotValue(int amount)
+    {
+        string sanitizedInput = _collectivePotUI.text.Replace("$", "").Trim();
+        if (int.TryParse(sanitizedInput, out int parsedValue))
+        {
+            _collectivePotUI.text = $"${parsedValue + amount}";
+        }
     }
 
 }

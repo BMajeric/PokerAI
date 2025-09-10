@@ -894,7 +894,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Pot Size
+  m_text: '$0
 
 '
   m_isRightToLeft: 0
@@ -2447,9 +2447,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Pot Size
-
-'
+  m_text: $0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3408,7 +3406,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Pot Size
+  m_text: '$0
 
 '
   m_isRightToLeft: 0
@@ -4571,7 +4569,7 @@ PrefabInstance:
     - target: {fileID: 2812564926420198111, guid: 08d37c73698b2224aaa89edfa8927c56, type: 3}
       propertyPath: _playerPotUI
       value: 
-      objectReference: {fileID: 813718703}
+      objectReference: {fileID: 1783194147}
     - target: {fileID: 2812564926420198111, guid: 08d37c73698b2224aaa89edfa8927c56, type: 3}
       propertyPath: _raiseButton
       value: 
@@ -4591,11 +4589,11 @@ PrefabInstance:
     - target: {fileID: 2812564926420198111, guid: 08d37c73698b2224aaa89edfa8927c56, type: 3}
       propertyPath: _opponentPotUI
       value: 
-      objectReference: {fileID: 28234149}
+      objectReference: {fileID: 645487447}
     - target: {fileID: 2812564926420198111, guid: 08d37c73698b2224aaa89edfa8927c56, type: 3}
       propertyPath: _collectivePotUI
       value: 
-      objectReference: {fileID: 2146783978}
+      objectReference: {fileID: 1261637006}
     - target: {fileID: 2812564926420198111, guid: 08d37c73698b2224aaa89edfa8927c56, type: 3}
       propertyPath: _nextRoundButton
       value: 

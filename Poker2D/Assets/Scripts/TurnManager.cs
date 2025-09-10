@@ -57,13 +57,23 @@ public class TurnManager : MonoBehaviour
         _table = table;
     }
 
-    public void StartRound(bool isPlayersTurn, int playerPot, int opponentPot)
+    public void StartRound(bool isPlayersTurn, int smallBlind, int bigBlind)
     {
         _isPlayersTurn = isPlayersTurn;
         _isPlayersTurnOnRoundStart = isPlayersTurn;
-        _playerPot = playerPot;
-        _opponentPot = opponentPot;
 
+        // Handle blinds
+        _playerPot = isPlayersTurn ? smallBlind : bigBlind;
+        _player.BetChips(_playerPot);
+
+        _opponentPot = isPlayersTurn ? bigBlind : smallBlind;
+        _opponent.BetChips(_opponentPot);
+
+        // Update UI
+        OnPlayerBetUpdateUI.Invoke(_playerPot);
+        OnOpponentBetUpdateUI.Invoke(_opponentPot);
+
+        // Set game state
         _gameState = GameState.PRE_FLOP;
 
         StartTurn();
@@ -99,7 +109,7 @@ public class TurnManager : MonoBehaviour
             _opponentPot += amount;
 
             // Update UI
-            OnOpponentBetUpdateUI(amount);
+            OnOpponentBetUpdateUI.Invoke(amount);
         }
 
         // Handle logic for folding
