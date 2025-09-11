@@ -21,7 +21,6 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private TMP_Text _playerPotUI;
     [SerializeField] private TMP_Text _opponentPotUI;
 
-    private GameManager _gameManager;
     private TurnManager _turnManager;
 
     private Player _player = null;
@@ -38,7 +37,6 @@ public class ButtonManager : MonoBehaviour
 
     private void Awake()
     {
-        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _turnManager = GameObject.Find("TurnManager").GetComponent<TurnManager>();
     }
 
@@ -57,8 +55,9 @@ public class ButtonManager : MonoBehaviour
         _bettingInputField.onValueChanged.AddListener(OnBettingInputFieldValueChanged);
 
         // Subscribe to other events
-        _turnManager.OnPlayerBetUpdateUI += ChangePlayerPotValues;
-        _turnManager.OnOpponentBetUpdateUI += ChangeOpponentPotValues;
+        _turnManager.OnPlayerChipsChange += ChangePlayerChipsValues;
+        _turnManager.OnOpponentChipsChange += ChangeOpponentChipsValues;
+        _turnManager.OnPotValueChanged += ChangePotValue;
     }
 
     public void GivePlayerInfo(Player player, Player opponent)
@@ -201,40 +200,32 @@ public class ButtonManager : MonoBehaviour
         _bettingInputField.caretPosition = _bettingInputField.text.Length;
     }
 
-    private void ChangePlayerPotValues(int amount)
+    private void ChangePlayerChipsValues(int chips)
     {
-        string sanitizedInput = _playerPotUI.text.Replace("$", "").Trim();
-        if (int.TryParse(sanitizedInput, out int parsedValue))
-        {
-            _playerPotUI.text = $"${parsedValue + amount}";
-            ChangeCollectivePotValue(amount);
-        }
+        _playerPotUI.text = $"${chips}";
     }
 
-    private void ChangeOpponentPotValues(int amount)
+    private void ChangeOpponentChipsValues(int chips)
     {
-        string sanitizedInput = _opponentPotUI.text.Replace("$", "").Trim();
-        if (int.TryParse(sanitizedInput, out int parsedValue))
-        {
-            _opponentPotUI.text = $"${parsedValue + amount}";
-            ChangeCollectivePotValue(amount);
-        }
+        _opponentPotUI.text = $"${chips}";
     }
 
-    private void ChangeCollectivePotValue(int amount)
+    private void ChangePotValue(int pot)
     {
-        string sanitizedInput = _collectivePotUI.text.Replace("$", "").Trim();
-        if (int.TryParse(sanitizedInput, out int parsedValue))
-        {
-            _collectivePotUI.text = $"${parsedValue + amount}";
-        }
+        //string sanitizedInputPlayer = _playerPotUI.text.Replace("$", "").Trim();
+        //string sanitizedInputOpponent = _opponentPotUI.text.Replace("$", "").Trim();
+        //if (int.TryParse(sanitizedInputPlayer, out int parsedValuePlayer) && int.TryParse(sanitizedInputOpponent, out int parsedValueOpponent))
+        //{
+        //    _collectivePotUI.text = $"${parsedValuePlayer + parsedValueOpponent}";
+        //}
+        _collectivePotUI.text = $"${pot}";
     }
 
     private void OnDestroy()
     {
         // Unsubscribe from events
-        _turnManager.OnPlayerBetUpdateUI -= ChangePlayerPotValues;
-        _turnManager.OnOpponentBetUpdateUI -= ChangeOpponentPotValues;
+        _turnManager.OnPlayerChipsChange -= ChangePlayerChipsValues;
+        _turnManager.OnOpponentChipsChange -= ChangeOpponentChipsValues;
     }
 
 }

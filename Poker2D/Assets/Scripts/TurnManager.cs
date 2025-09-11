@@ -29,8 +29,9 @@ public class TurnManager : MonoBehaviour
     public event Action<Player> OnRoundEnded;
     public event Action<GameState> OnGameStateChanged;
     public event Action<Player> OnWinnerDetermined;
-    public event Action<int> OnPlayerBetUpdateUI;
-    public event Action<int> OnOpponentBetUpdateUI;
+    public event Action<int> OnPlayerChipsChange;
+    public event Action<int> OnOpponentChipsChange;
+    public event Action<int> OnPotValueChanged;
 
     private void Awake()
     {
@@ -70,8 +71,9 @@ public class TurnManager : MonoBehaviour
         _opponent.BetChips(_opponentPot);
 
         // Update UI
-        OnPlayerBetUpdateUI.Invoke(_playerPot);
-        OnOpponentBetUpdateUI.Invoke(_opponentPot);
+        OnPlayerChipsChange?.Invoke(_player.Chips);
+        OnOpponentChipsChange?.Invoke(_opponent.Chips);
+        OnPotValueChanged?.Invoke(Pot);
 
         // Set game state
         _gameState = GameState.PRE_FLOP;
@@ -100,7 +102,8 @@ public class TurnManager : MonoBehaviour
             _playerPot += amount;
 
             // Update UI
-            OnPlayerBetUpdateUI.Invoke(amount);
+            OnPlayerChipsChange?.Invoke(_player.Chips);
+            OnPotValueChanged?.Invoke(Pot);
         }
         else
         {
@@ -109,7 +112,8 @@ public class TurnManager : MonoBehaviour
             _opponentPot += amount;
 
             // Update UI
-            OnOpponentBetUpdateUI.Invoke(amount);
+            OnOpponentChipsChange?.Invoke(_opponent.Chips);
+            OnPotValueChanged?.Invoke(Pot);
         }
 
         // Handle logic for folding
@@ -207,6 +211,15 @@ public class TurnManager : MonoBehaviour
         {
             winner.AddChips(Pot);
         }
+
+        // Reset the pots
+        _playerPot = 0;
+        _opponentPot = 0;
+
+        // Update pot UI
+        OnPlayerChipsChange?.Invoke(_player.Chips);
+        OnOpponentChipsChange?.Invoke(_opponent.Chips);
+        OnPotValueChanged?.Invoke(Pot);
 
         // Add wait to give player a chance to see the enemy cards
         yield return new WaitForSeconds(8);
