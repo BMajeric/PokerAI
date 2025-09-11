@@ -76,7 +76,7 @@ public class ButtonManager : MonoBehaviour
 
         // Update betting slider min and max values
         _bettingSlider.minValue = playerBettingSliderMinValue;
-        _bettingSlider.maxValue = _player.Chips;
+        _bettingSlider.maxValue = Mathf.Min(_player.Chips, _opponent.Chips);
         _bettingSlider.value = playerBettingSliderMinValue;
 
 
@@ -212,12 +212,6 @@ public class ButtonManager : MonoBehaviour
 
     private void ChangePotValue(int pot)
     {
-        //string sanitizedInputPlayer = _playerPotUI.text.Replace("$", "").Trim();
-        //string sanitizedInputOpponent = _opponentPotUI.text.Replace("$", "").Trim();
-        //if (int.TryParse(sanitizedInputPlayer, out int parsedValuePlayer) && int.TryParse(sanitizedInputOpponent, out int parsedValueOpponent))
-        //{
-        //    _collectivePotUI.text = $"${parsedValuePlayer + parsedValueOpponent}";
-        //}
         _collectivePotUI.text = $"${pot}";
     }
 

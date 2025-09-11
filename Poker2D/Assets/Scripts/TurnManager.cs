@@ -216,7 +216,7 @@ public class TurnManager : MonoBehaviour
         _playerPot = 0;
         _opponentPot = 0;
 
-        // Update pot UI
+        // Update chips and pot UI
         OnPlayerChipsChange?.Invoke(_player.Chips);
         OnOpponentChipsChange?.Invoke(_opponent.Chips);
         OnPotValueChanged?.Invoke(Pot);
