@@ -62,6 +62,10 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
+        // Check if the deck has enough cards to deal the whole round or if it needs to be reshuffled
+        // and reshuffle it if it's necesarry
+        _deck.ReshuffleIfNeeded();
+
         // Small blind starts the pre-flop
         _turnManager.StartRound(!_isPlayerBigBlind, smallBlind, bigBlind);
 

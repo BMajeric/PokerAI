@@ -49,18 +49,21 @@ public class Deck
 
     public Card DrawCard()
     {
+        Card drawnCard = _cards[0];
+        _cards.RemoveAt(0);
+
+        Debug.Log($"Drawn the {drawnCard}");
+        return drawnCard;
+    }
+
+    public void ReshuffleIfNeeded()
+    {
         // If deck would need to be reshuffled mid dealing, reshuffle it before to prevent duplicate cards
         if (_cards.Count < 9)
         {
             GenerateDeck();
             Shuffle();
         }
-
-        Card drawnCard = _cards[0];
-        _cards.RemoveAt(0);
-
-        Debug.Log($"Drawn the {drawnCard}");
-        return drawnCard;
     }
 
     public int GetDeckSize()
