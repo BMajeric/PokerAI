@@ -224,6 +224,16 @@ public class TurnManager : MonoBehaviour
         // Add wait to give player a chance to see the enemy cards
         yield return new WaitForSeconds(8);
 
+        // PLACEHOLDER: refill the player or opponent chips if they lost all
+        if (_player.Chips <= 0)
+        {
+            _player.AddChips(0 - _player.Chips + 2500);     // TODO: make sure player cannot have less than 0 chips
+        }
+        if (_opponent.Chips <= 0)
+        {
+            _opponent.AddChips(0 - _opponent.Chips + 2500);
+        }
+
         // Notify that the round has ended
         OnRoundEnded?.Invoke(winner);
     }
