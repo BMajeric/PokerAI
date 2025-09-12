@@ -212,10 +212,23 @@ public class GameManager : MonoBehaviour
 
     public void EndRound(Player winner)
     {
-        // TODO: Animate, handle null winner
+        StartCoroutine(EndRoundCoroutine(winner));
+    }
+
+    public IEnumerator EndRoundCoroutine(Player winner)
+    {
+        // TODO: Animate
+
+        // Clear all cards from table
         _player.ClearPlayerHand();
         _opponent.ClearPlayerHand();
         _table.Clear();
+
+        // Give player a few seconds to take in everything before new round
+        yield return new WaitForSeconds(2);
+
+        // Go to next round
+        StartRound();
     }
 
     private Dictionary<string, Sprite> LoadCardSprites(string folderName)
