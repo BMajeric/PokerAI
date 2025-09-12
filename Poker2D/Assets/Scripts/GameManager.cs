@@ -227,6 +227,9 @@ public class GameManager : MonoBehaviour
         // Give player a few seconds to take in everything before new round
         yield return new WaitForSeconds(2);
 
+        // Switch who is big blind
+        _isPlayerBigBlind = !_isPlayerBigBlind;
+
         // Go to next round
         StartRound();
     }
