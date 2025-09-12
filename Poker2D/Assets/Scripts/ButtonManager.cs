@@ -6,7 +6,10 @@ using TMPro;
 
 public class ButtonManager : MonoBehaviour
 {
+    [Header("Game Control UI Buttons")]
     [SerializeField] private Button _startButton;
+    [SerializeField] private Button _buyInButton;
+    [SerializeField] private Button _exitButton;
 
     [Header("Betting UI Inputs")]
     [SerializeField] private Button _foldButton;
