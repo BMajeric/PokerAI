@@ -89,17 +89,20 @@ public class Tracker : MonoBehaviour
     public bool frameForRecog = false;
     private bool texCoordsStaticLoaded = false;
 
+	FDP[] fdpArray = new FDP[Tracker.MAX_FACES];
+	private float[] rawfdp = new float[2000];
+
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;
 	private bool AppStarted = false;
 	AndroidJavaClass unity;
 #endif
 
-#endregion
+	#endregion
 
-#region Native code printing
+	#region Native code printing
 
-    private bool enableNativePrinting = true;
+	private bool enableNativePrinting = true;
 
 	//For printing from native code
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -230,18 +233,13 @@ public class Tracker : MonoBehaviour
 
         if (!isTrackerReady())
             return;
-      
-        if (Input.GetKeyDown(KeyCode.Escape))
-		{
-			Application.Quit();
-		}
 
 #if (UNITY_IPHONE || UNITY_ANDROID) && UNITY_EDITOR
 		// tracking will not work if the target is set to Android or iOS while in editor
 		return;
 #endif
 
-		if (isTracking)
+        if (isTracking)
 		{
 #if UNITY_ANDROID
 			if (VisageTrackerNative._frameChanged())
@@ -274,6 +272,21 @@ public class Tracker : MonoBehaviour
             //After the track has been preformed on the new frame, the flags for the analysis and recognition are set to true
             frameForAnalysis = true;
             frameForRecog = true;
+
+			// TEST CODE
+			float[] translation = new float[3];
+			VisageTrackerNative._getHeadTranslation(translation, 0);
+			Debug.Log($"Translation: ({translation[0]}, {translation[1]}, {translation[2]})");
+
+			if (Input.GetKeyDown(KeyCode.Escape))
+			{
+				Debug.Log("ESCAPED");
+				for (int faceIndex = 0; faceIndex < MAX_FACES; faceIndex++)
+				{
+					VisageTrackerNative._getAllFeaturePoints3D(rawfdp, rawfdp.Length, faceIndex);
+					fdpArray[faceIndex].Fill(rawfdp);
+				}
+			}
 		}
 
 	}
