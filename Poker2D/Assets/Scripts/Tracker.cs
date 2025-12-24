@@ -89,7 +89,7 @@ public class Tracker : MonoBehaviour
     public bool frameForRecog = false;
     private bool texCoordsStaticLoaded = false;
 
-	FDP[] fdpArray = new FDP[Tracker.MAX_FACES];
+	FDP[] fdpArray = new FDP[MAX_FACES];
 	private float[] rawfdp = new float[2000];
 
 #if UNITY_ANDROID
@@ -222,7 +222,13 @@ public class Tracker : MonoBehaviour
 
 		// Open camera in native code
 		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored);
-    }
+
+		// Fill the fdpArray with FDP elements to avoid Null reference exceptions when filling it
+		for (int i = 0; i < MAX_FACES; i++)
+		{
+			fdpArray[i] = new FDP();
+		}
+	}
 
 
     void Update()
@@ -275,8 +281,8 @@ public class Tracker : MonoBehaviour
 
 			// TEST CODE
 			float[] translation = new float[3];
-			VisageTrackerNative._getHeadTranslation(translation, 0);
-			Debug.Log($"Translation: ({translation[0]}, {translation[1]}, {translation[2]})");
+			//VisageTrackerNative._getHeadTranslation(translation, 0);
+			//Debug.Log($"Translation: ({translation[0]}, {translation[1]}, {translation[2]})");
 
 			if (Input.GetKeyDown(KeyCode.Escape))
 			{
@@ -284,8 +290,22 @@ public class Tracker : MonoBehaviour
 				for (int faceIndex = 0; faceIndex < MAX_FACES; faceIndex++)
 				{
 					VisageTrackerNative._getAllFeaturePoints3D(rawfdp, rawfdp.Length, faceIndex);
-					fdpArray[faceIndex].Fill(rawfdp);
+                    // Debug.Log($"[{String.Join(", ", rawfdp.Select(v => v.ToString()))}]");
+					// Debug.Log(fdpArray.Length);	// fdpArray has length 4 but all the values are Null and then the Fill() method throws a null refference exception
+					// foreach (FDP value in fdpArray) {
+					//	 Debug.Log(value);
+                    // }
+                    fdpArray[faceIndex].Fill(rawfdp);
 				}
+				Debug.Log($"FDP: {fdpArray}");
+
+				int FP_START_GROUP_INDEX = VisageTrackerNative._getFP_START_GROUP_INDEX();
+				int FP_END_GROUP_INDEX = VisageTrackerNative._getFP_END_GROUP_INDEX();
+				int length = FP_END_GROUP_INDEX - FP_START_GROUP_INDEX + 1;
+				int[] groupSizes = new int[length];
+				VisageTrackerNative._getGroupSizes(groupSizes, length);
+
+				Debug.Log($"A: {String.Join(", ", fdpArray[0].getFPPos(2, 1).Select(v => v.ToString()))}");
 			}
 		}
 
