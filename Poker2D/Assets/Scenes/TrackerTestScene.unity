@@ -180,6 +180,7 @@ MonoBehaviour:
   defaultCameraHeight: 600
   frameForAnalysis: 0
   frameForRecog: 0
+  featurePointPrefab: {fileID: 1027185324893847024, guid: 1b92cee04eeb83148b41787aad3c719b, type: 3}
 --- !u!4 &299199385
 Transform:
   m_ObjectHideFlags: 0
