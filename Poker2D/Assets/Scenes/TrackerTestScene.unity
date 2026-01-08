@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 299199385}
   - component: {fileID: 299199384}
+  - component: {fileID: 299199386}
   m_Layer: 0
   m_Name: Tracker
   m_TagString: Untagged
@@ -180,7 +181,6 @@ MonoBehaviour:
   defaultCameraHeight: 600
   frameForAnalysis: 0
   frameForRecog: 0
-  featurePointPrefab: {fileID: 1027185324893847024, guid: 1b92cee04eeb83148b41787aad3c719b, type: 3}
 --- !u!4 &299199385
 Transform:
   m_ObjectHideFlags: 0
@@ -196,6 +196,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &299199386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299199383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baed2d7d8c1335449bfc3344037e5229, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  featurePointPrefab: {fileID: 1027185324893847024, guid: 1b92cee04eeb83148b41787aad3c719b, type: 3}
+  referenceFeaturePointPrefab: {fileID: 1027185324893847024, guid: 9a902bcc8413d1745b30bbace0fb6cca, type: 3}
 --- !u!1 &1405607189
 GameObject:
   m_ObjectHideFlags: 0

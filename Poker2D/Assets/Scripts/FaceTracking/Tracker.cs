@@ -92,15 +92,9 @@ public class Tracker : MonoBehaviour
 	FDP[] fdpArray = new FDP[MAX_FACES];
 	private float[] rawfdp = new float[2000];
 
-	// Added fields
-	int FP_START_GROUP_INDEX;
-	int FP_END_GROUP_INDEX;
-	int length;
-	int[] groupSizes;
+	private FacialFeatureTesting facialFeatureTesting;
 
-	[SerializeField()]
-	private GameObject featurePointPrefab;
-	private GameObject[] fpList;
+	
 
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;
@@ -186,6 +180,10 @@ public class Tracker : MonoBehaviour
 				break;
 		}
 
+		// TEST: 
+		// Find FacialFeatureTesting
+		facialFeatureTesting = gameObject.GetComponent<FacialFeatureTesting>();
+
 #if UNITY_STANDALONE_WIN
 		//NOTE: licensing for Windows platform expects folder path exclusively
 		VisageTrackerNative._initializeLicense(licenseFilePath);
@@ -233,35 +231,7 @@ public class Tracker : MonoBehaviour
 		// Open camera in native code
 		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored);
 
-		FP_START_GROUP_INDEX = VisageTrackerNative._getFP_START_GROUP_INDEX();
-		FP_END_GROUP_INDEX = VisageTrackerNative._getFP_END_GROUP_INDEX();
-		length = FP_END_GROUP_INDEX - FP_START_GROUP_INDEX + 1;
-		groupSizes = new int[length];
-		VisageTrackerNative._getGroupSizes(groupSizes, length);
-
-		fpList = new GameObject[groupSizes.Sum()];
-
-		// Create feature point game objects
-		int counter = 0;
-		foreach (int groupSize in groupSizes)
-        {
-			Debug.Log(groupSize);
-			for (int i = 0; i < groupSize; i++)
-            {
-				GameObject featurePoint = Instantiate(featurePointPrefab, Vector3.zero, Quaternion.identity);
-				Debug.Log(featurePoint);
-				fpList[counter + i] = featurePoint;
-            }
-			counter += groupSize;
-        }
-
-		Debug.Log(fpList.Length);
-
-		// Fill the fdpArray with FDP elements to avoid Null reference exceptions when filling it
-		for (int i = 0; i < MAX_FACES; i++)
-		{
-			fdpArray[i] = new FDP();
-		}
+        
 	}
 
 
@@ -326,28 +296,7 @@ public class Tracker : MonoBehaviour
 
 				Debug.Log($"A: {String.Join(", ", fdpArray[0].getFPPos(2, 1).Select(v => v.ToString()))}");
 			}
-			for (int faceIndex = 0; faceIndex < MAX_FACES; faceIndex++)
-			{
-				VisageTrackerNative._getAllFeaturePoints3D(rawfdp, rawfdp.Length, faceIndex);
-                // Debug.Log($"[{String.Join(", ", rawfdp.Select(v => v.ToString()))}]");
-				// Debug.Log(fdpArray.Length);	// fdpArray has length 4 but all the values are Null and then the Fill() method throws a null refference exception
-				// foreach (FDP value in fdpArray) {
-				//	 Debug.Log(value);
-                // }
-                fdpArray[faceIndex].Fill(rawfdp);
-			}
-			Debug.Log($"FDP: {fdpArray}");
-
-			//for (int i = 0; i < groupSizes.Length; i++)
-   //         {
-			//	for (int j = 1; j < groupSizes[i] + 1; j++)
-   //             {
-			//		float[] rawPos = fdpArray[0].getFPPos(VisageTrackerNative._getFP_START_GROUP_INDEX() + i, j);
-			//		Vector3 pos = new Vector3(rawPos[0] * 40, rawPos[1] * 40, rawPos[2] * 40);
-			//		//Debug.Log($"{fpList[groupSizes[0..i].Sum() + j - 1].transform.position} A {groupSizes[0..i].Sum() + j - 1} : lele {pos}");
-			//		fpList[groupSizes[0..i].Sum() + j - 1].transform.position = pos;
-			//	}
-   //         }
+			
 		}
 
 	}

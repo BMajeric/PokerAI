@@ -65,6 +65,11 @@ public class FDP
         }
     }
 
+    public Dictionary<KeyValuePair<int, int>, float[]> getFeaturePointDict()
+    {
+        return featurePoints;
+    }
+
     public float[] getFPPos(int group, int index)
     {
         float[] position = new float[3];
