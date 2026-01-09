@@ -89,12 +89,6 @@ public class Tracker : MonoBehaviour
     public bool frameForRecog = false;
     private bool texCoordsStaticLoaded = false;
 
-	FDP[] fdpArray = new FDP[MAX_FACES];
-	private float[] rawfdp = new float[2000];
-
-	private FacialFeatureTesting facialFeatureTesting;
-
-	
 
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;
@@ -180,9 +174,6 @@ public class Tracker : MonoBehaviour
 				break;
 		}
 
-		// TEST: 
-		// Find FacialFeatureTesting
-		facialFeatureTesting = gameObject.GetComponent<FacialFeatureTesting>();
 
 #if UNITY_STANDALONE_WIN
 		//NOTE: licensing for Windows platform expects folder path exclusively
@@ -229,9 +220,7 @@ public class Tracker : MonoBehaviour
 		Orientation = GetDeviceOrientation();
 
 		// Open camera in native code
-		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored);
-
-        
+		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored); 
 	}
 
 
@@ -282,20 +271,6 @@ public class Tracker : MonoBehaviour
             //After the track has been preformed on the new frame, the flags for the analysis and recognition are set to true
             frameForAnalysis = true;
             frameForRecog = true;
-
-			// TEST CODE
-			float[] translation = new float[3];
-			//VisageTrackerNative._getHeadTranslation(translation, 0);
-			//Debug.Log($"Translation: ({translation[0]}, {translation[1]}, {translation[2]})");
-
-			if (Input.GetKeyDown(KeyCode.Escape))
-			{
-				Debug.Log("ESCAPED");
-
-				
-
-				Debug.Log($"A: {String.Join(", ", fdpArray[0].getFPPos(2, 1).Select(v => v.ToString()))}");
-			}
 			
 		}
 
