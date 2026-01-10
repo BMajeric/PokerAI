@@ -89,6 +89,8 @@ public class Tracker : MonoBehaviour
     public bool frameForRecog = false;
     private bool texCoordsStaticLoaded = false;
 
+	FaceFrameBuffer faceFrameBuffer;
+
 
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;
@@ -220,7 +222,10 @@ public class Tracker : MonoBehaviour
 		Orientation = GetDeviceOrientation();
 
 		// Open camera in native code
-		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored); 
+		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored);
+
+		// Initialize buffer for storing facial frames that stores the last 3s of data
+		faceFrameBuffer = new FaceFrameBuffer(3.0f);
 	}
 
 
@@ -272,6 +277,10 @@ public class Tracker : MonoBehaviour
             frameForAnalysis = true;
             frameForRecog = true;
 			
+			// Get only for the first face: presumed to be the playeLandmarks: 
+			float[] landmarks = new float[2000];
+			VisageTrackerNative._getAllFeaturePoints3D(landmarks, landmarks.Length, 0);
+			Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
 		}
 
 	}
