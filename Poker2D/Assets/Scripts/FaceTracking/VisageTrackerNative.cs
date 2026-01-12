@@ -24,6 +24,7 @@ public struct VsRect
 
 public class FDP
 {
+    private Dictionary<KeyValuePair<int, int>, float[]> featurePointsDDQ = new Dictionary<KeyValuePair<int, int>, float[]>();
     private Dictionary<KeyValuePair<int, int>, float[]> featurePoints = new Dictionary<KeyValuePair<int, int>, float[]>();
 
     public void Fill(float[] rawFDP)
@@ -41,7 +42,7 @@ public class FDP
             {
                 KeyValuePair<int, int> groupIndex = new KeyValuePair<int, int>(group, index);
 
-                float[] featurePoint = new float[6]
+                float[] featurePointDDQ = new float[6]
                 {
                     rawFDP[bufferIndex    ],
                     rawFDP[bufferIndex + 1],
@@ -50,8 +51,22 @@ public class FDP
                     (int)rawFDP[bufferIndex + 4],
                     rawFDP[bufferIndex + 5]
                 };
-           
-                bufferIndex += 6;
+
+                if (!featurePointsDDQ.ContainsKey(groupIndex))
+                {
+                    featurePointsDDQ.Add(groupIndex, featurePointDDQ);
+                }
+                else
+                {
+                    featurePointsDDQ[groupIndex] = featurePointDDQ;
+                }
+
+                float[] featurePoint = new float[3]
+                {
+                    rawFDP[bufferIndex    ],
+                    rawFDP[bufferIndex + 1],
+                    rawFDP[bufferIndex + 2]
+                };
 
                 if (!featurePoints.ContainsKey(groupIndex))
                 {
@@ -61,6 +76,8 @@ public class FDP
                 {
                     featurePoints[groupIndex] = featurePoint;
                 }
+                
+                bufferIndex += 6;
             }
         }
     }
