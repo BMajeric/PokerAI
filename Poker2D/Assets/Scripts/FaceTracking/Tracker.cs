@@ -89,7 +89,10 @@ public class Tracker : MonoBehaviour
     public bool frameForRecog = false;
     private bool texCoordsStaticLoaded = false;
 
-	FaceFrameBuffer faceFrameBuffer;
+	private FaceFrameBuffer faceFrameBuffer;
+	private float bufferTimeLength = 3.0f;
+	private (int group, int index) referenceFeaturePointKey = (12, 1);
+	private int referenceFeaturePointIndex;
 
 
 #if UNITY_ANDROID
@@ -224,8 +227,17 @@ public class Tracker : MonoBehaviour
 		// Open camera in native code
 		camInited = OpenCamera(Orientation, camDeviceId, defaultCameraWidth, defaultCameraHeight, isMirrored);
 
-		// Initialize buffer for storing facial frames that stores the last 3s of data
-		faceFrameBuffer = new FaceFrameBuffer(3.0f);
+		// Initialize buffer for storing facial frames
+		faceFrameBuffer = new FaceFrameBuffer(bufferTimeLength);
+
+		// Find the index of the reference FP inside a flattened array
+		int fpStartGroupIndex = VisageTrackerNative._getFP_START_GROUP_INDEX();
+		int fpEndGroupIndex = VisageTrackerNative._getFP_END_GROUP_INDEX();
+		int length = fpEndGroupIndex - fpStartGroupIndex + 1;
+		int[] groupSizes = new int[length];
+		VisageTrackerNative._getGroupSizes(groupSizes, length);
+		referenceFeaturePointIndex = groupSizes[..(referenceFeaturePointKey.group - 2)].Sum();
+		Debug.Log("INDEX: " + referenceFeaturePointIndex);
 	}
 
 
@@ -280,7 +292,7 @@ public class Tracker : MonoBehaviour
 			// Get only for the first face: presumed to be the playeLandmarks: 
 			float[] landmarks = new float[2000];
 			VisageTrackerNative._getAllFeaturePoints3D(landmarks, landmarks.Length, 0);
-			Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
+			// Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
 		}
 
 	}
