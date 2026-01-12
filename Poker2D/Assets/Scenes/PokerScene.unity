@@ -3981,6 +3981,82 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1563420234049174611, guid: 2da6de5ec524d12458564d0402c266d7, type: 3}
   m_PrefabInstance: {fileID: 6972743551289752849}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1802901626
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1802901628}
+  - component: {fileID: 1802901627}
+  m_Layer: 0
+  m_Name: Tracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1802901627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802901626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af5149e6c82b4cd4b861ff33252cc0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visageSDK: 
+  visageAnalysisData: 
+  ConfigNeuralNet: 
+  ConfigFileEditor: Visage Tracker/Head Tracker.cfg
+  ConfigFileStandalone: Visage Tracker/Head Tracker.cfg
+  ConfigFileIOS: Head Tracker.cfg
+  ConfigFileAndroid: Head Tracker.cfg
+  ConfigFileOSX: Head Tracker.cfg
+  ConfigFileWebGL: Head Tracker.cfg
+  Translation:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  Rotation:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  TrackerStatus: 00000000000000000000000000000000
+  CameraViewMaterial: {fileID: 2100000, guid: 398258e688dcdea4f8eaeb2e47107406, type: 2}
+  CameraViewShaderRGBA: {fileID: 4800000, guid: 208311fae2fcaba43acb915577d90a37, type: 3}
+  CameraViewShaderBGRA: {fileID: 4800000, guid: bb83b524243398b4ab68e25652f8fecd, type: 3}
+  CameraViewShaderUnlit: {fileID: 4800000, guid: 8c0e9e8d04973294da81d23d4748a7ea, type: 3}
+  CameraFocus: 0
+  Orientation: 0
+  isMirrored: 1
+  camDeviceId: 0
+  defaultCameraWidth: 800
+  defaultCameraHeight: 600
+  frameForAnalysis: 0
+  frameForRecog: 0
+--- !u!4 &1802901628
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802901626}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.8876739, y: -0.65182096, z: 2366.061}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1888025386
 GameObject:
   m_ObjectHideFlags: 0
@@ -4886,3 +4962,4 @@ SceneRoots:
   - {fileID: 696608436}
   - {fileID: 1959989479}
   - {fileID: 443136014}
+  - {fileID: 1802901628}
