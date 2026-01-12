@@ -94,6 +94,9 @@ public class Tracker : MonoBehaviour
 	private (int group, int index) referenceFeaturePointKey = (12, 1);
 	private int referenceFeaturePointIndex;
 
+	float[] landmarksDDQ;
+	float[] landmarks;
+
 
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;
@@ -238,6 +241,14 @@ public class Tracker : MonoBehaviour
 		VisageTrackerNative._getGroupSizes(groupSizes, length);
 		referenceFeaturePointIndex = groupSizes[..(referenceFeaturePointKey.group - 2)].Sum();
 		Debug.Log("INDEX: " + referenceFeaturePointIndex);
+
+		// Create array to load landmarks with deined detected and quality flags
+		//		dimension of array -> number of landmarks * 6 (for x, y and z coordinates and defined, detected and quality flags)
+		landmarksDDQ = new float[groupSizes.Sum() * 6];
+
+		// Create array to store landmark coordinates
+		//		dimension of array -> number of landmarks * 3 (for x, y and z coordinates)
+		landmarks = new float[groupSizes.Sum() * 3];
 	}
 
 
@@ -289,15 +300,42 @@ public class Tracker : MonoBehaviour
             frameForAnalysis = true;
             frameForRecog = true;
 			
-			// Get only for the first face: presumed to be the playeLandmarks: 
-			float[] landmarks = new float[2000];
-			VisageTrackerNative._getAllFeaturePoints3D(landmarks, landmarks.Length, 0);
-			// Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
+			// Get only for the first face: presumed to be the player's landmarks with defined, detected and quality flags: 
+			VisageTrackerNative._getAllFeaturePoints3D(landmarksDDQ, landmarksDDQ.Length, 0);
+
+			// Remove the defined, detected and quality flags to keep only raw coordinates of each facial feature point
+			landmarks = ExtractXYZ(landmarksDDQ);
+
+			Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
 		}
 
 	}
 
-    bool isTrackerReady()
+	public static float[] ExtractXYZ(float[] input)
+	{
+		int inputStride = 6;
+		int outputStride = 3;
+
+		int pointCount = input.Length / inputStride;
+		float[] output = new float[pointCount * outputStride];
+
+		int inIdx = 0;
+		int outIdx = 0;
+
+		for (int i = 0; i < pointCount; i++)
+		{
+			output[outIdx] = input[inIdx];     // x
+			output[outIdx + 1] = input[inIdx + 1]; // y
+			output[outIdx + 2] = input[inIdx + 2]; // z
+
+			inIdx += inputStride;
+			outIdx += outputStride;
+		}
+
+		return output;
+	}
+
+	bool isTrackerReady()
     {
         if (camInited && trackerInited)
         {    
