@@ -31,6 +31,10 @@ public class PatternManager
 
     float Distance(float[] a, float[] b)
     {
+        // If the dimensions don't match there has been a mistake so return the maximum possible distance
+        if (a.Length != b.Length)
+            return float.MaxValue;
+
         float sum = 0f;
         for (int i = 0; i < a.Length; i++)
             sum += (a[i] - b[i]) * (a[i] - b[i]);

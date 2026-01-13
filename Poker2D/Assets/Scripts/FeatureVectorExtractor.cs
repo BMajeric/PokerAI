@@ -19,7 +19,7 @@ public class FeatureVectorExtractor
         List<float[]> aligned = Align(frames);
 
         // Temporal deltas
-        List<float[]> deltas = ComputeDeltas(aligned);
+        List<float[]> deltas = ComputeDeltas(frames, aligned);
 
         // Aggregate
         return Aggregate(deltas);
@@ -51,7 +51,7 @@ public class FeatureVectorExtractor
         return result;
     }
 
-    List<float[]> ComputeDeltas(List<float[]> aligned)
+    List<float[]> ComputeDeltas(List<FaceFrame> frames, List<float[]> aligned)
     {
         List<float[]> result = new List<float[]>();
 
@@ -59,8 +59,13 @@ public class FeatureVectorExtractor
         {
             float[] deltas = new float[aligned[i].Length];
 
+            // Normalize the deltas using the time difference between frames
+            // to make them more stable across different frame rates
+            float timeDelta = frames[i].timestamp - frames[i - 1].timestamp;
+            float normalizer = timeDelta > 0f ? timeDelta : 1f;     // To avoid devision by 0
+
             for (int j = 0; j < deltas.Length; j++)
-                deltas[j] = aligned[i][j] - aligned[i - 1][j];
+                deltas[j] = (aligned[i][j] - aligned[i - 1][j]) / normalizer;
 
             result.Add(deltas);
         }
@@ -72,14 +77,50 @@ public class FeatureVectorExtractor
     {
         int dim = deltas[0].Length;
         float[] mean = new float[dim];
+        float[] variance = new float[dim];
+        float[] maxAbsDistance = new float[dim];
+        float motionEnergy = 0f;
 
         foreach (var delta in deltas)
             for (int i = 0; i < dim; i++)
-                mean[i] += delta[i];
+            {
+                float value = delta[i];
+                mean[i] += value;
+                float absValue = Mathf.Abs(value);
+                if (absValue > maxAbsDistance[i])
+                    maxAbsDistance[i] = absValue;
+                motionEnergy += value * value;
+            }
 
         for (int i = 0; i < dim; i++)
             mean[i] /= deltas.Count;
 
-        return mean;
+        foreach (var delta in deltas)
+            for (int i = 0; i < dim; i++)
+            {
+                float diff = delta[i] - mean[i];
+                variance[i] += diff * diff;
+            }
+
+        for (int i = 0; i < dim; i++)
+            variance[i] /= deltas.Count;
+
+        // Aggregate features into single feature vector
+        // Feature order: mean (dim), variance (dim), max abs (dim), motion energy (1)
+        float[] aggregated = new float[dim * 3 + 1];
+        int offset = 0;
+
+        System.Array.Copy(mean, 0, aggregated, offset, dim);
+        offset += dim;
+
+        System.Array.Copy(variance, 0, aggregated, offset, dim);
+        offset += dim;
+
+        System.Array.Copy(maxAbsDistance, 0, aggregated, offset, dim);
+        offset += dim;
+
+        aggregated[offset] = motionEnergy;
+
+        return aggregated;
     }
 }
