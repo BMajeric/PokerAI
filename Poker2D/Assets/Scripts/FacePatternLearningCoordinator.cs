@@ -19,6 +19,12 @@ public class FacePatternLearningCoordinator : MonoBehaviour
     [Header("Feature Extraction")]
     [SerializeField] private int _fallbackReferenceFeaturePointIndex = 0;
 
+    [Header("Pattern Matching")]
+    [SerializeField] private float _patternMatchThreshold = 55f;
+    [SerializeField] private bool _enableAutoThresholdCalibration = false;
+    [SerializeField] private float _autoThresholdStdMultiplier = 2f;
+    [SerializeField] private int _minAutoCalibrationSamples = 10;
+
     [Header("Bluff Detection")]
     [SerializeField] private HandRanking _preflopStrongThreshold = HandRanking.PAIR;
     [SerializeField] private HandRanking _flopStrongThreshold = HandRanking.PAIR;
@@ -69,7 +75,9 @@ public class FacePatternLearningCoordinator : MonoBehaviour
         }
 
         _featureVectorExtractor = new FeatureVectorExtractor(referenceIndex);
-        _patternManager = new PatternManager();
+        _patternManager = new PatternManager(_patternMatchThreshold, _enableAutoThresholdCalibration, _autoThresholdStdMultiplier, _minAutoCalibrationSamples);
+
+        Debug.Log($"FacePatternLearningCoordinator: pattern threshold set to {_patternManager.threshold:F4} (autoCalibrate={_patternManager.autoCalibrateThreshold}).");
 
         RegisterEventHooks();
     }
@@ -219,7 +227,8 @@ public class FacePatternLearningCoordinator : MonoBehaviour
             bool wasBluff = !isStrongHand && isAggressive;
 
             // Find if a pattern like this exists or not and create or update it
-            Pattern pattern = _patternManager.FindOrCreate(observation.FeatureVector, out bool isNew);
+            Pattern pattern = _patternManager.FindOrCreate(observation.FeatureVector, out bool isNew, out float distance);
+            Debug.Log($"FacePatternLearningCoordinator: match distance={distance:F4} threshold={_patternManager.threshold:F4} new={isNew}.");
             if (!isNew)
                 pattern.Update(observation.FeatureVector, isStrongHand, isAggressive, didPlayerWin);
         }

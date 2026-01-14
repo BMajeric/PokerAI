@@ -308,7 +308,7 @@ public class Tracker : MonoBehaviour
 			// Remove the defined, detected and quality flags to keep only raw coordinates of each facial feature point
 			landmarks = ExtractXYZ(landmarksDDQ);
 
-			Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
+			// Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
 
 			// Fill the frame buffer with face frame data
 			if (faceFrameBuffer != null && landmarks != null && landmarks.Length > 0)
