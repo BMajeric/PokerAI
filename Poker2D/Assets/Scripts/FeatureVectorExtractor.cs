@@ -4,6 +4,9 @@ using UnityEngine;
 public class FeatureVectorExtractor
 {
     int referenceIndex;
+    float[] runningMean;
+    float[] runningVarianceAccumulator;
+    int runningCount;
 
     public FeatureVectorExtractor(int referenceFeaturePointIndex)
     {
@@ -15,7 +18,8 @@ public class FeatureVectorExtractor
         if (frames.Count < 2)
             return null;
 
-        // Align frames to reference point
+        // Align frames to reference point and normalize scale
+        // so deltas are the same whether the player is closer or farther away from the screen
         List<float[]> aligned = Align(frames);
 
         // Temporal deltas
@@ -45,6 +49,26 @@ public class FeatureVectorExtractor
                 aligned[i + 2] = frame.landmarks[i + 2] - zRef;
             }
 
+            // Normalize scale using average distance from the reference landmark to all landmarks
+            // to keep deltas stable regardless of face distance to the camera
+            // Effectively scales features to set mean distance from the reference point to around 1
+            float scale = 0f;
+            int pointCount = aligned.Length / 3;
+            for (int i = 0; i < aligned.Length; i += 3)
+            {
+                float dx = aligned[i];
+                float dy = aligned[i + 1];
+                float dz = aligned[i + 2];
+                scale += dx * dx + dy * dy + dz * dz;
+            }
+
+            float scaleFactor = pointCount > 0 ? Mathf.Sqrt(scale / pointCount) : 1f;   // To avoid division by 0
+            if (scaleFactor > 0.0001f)
+            {
+                for (int i = 0; i < aligned.Length; i++)
+                    aligned[i] /= scaleFactor;
+            }
+
             result.Add(aligned);
         }
 
@@ -62,7 +86,7 @@ public class FeatureVectorExtractor
             // Normalize the deltas using the time difference between frames
             // to make them more stable across different frame rates
             float timeDelta = frames[i].timestamp - frames[i - 1].timestamp;
-            float normalizer = timeDelta > 0f ? timeDelta : 1f;     // To avoid devision by 0
+            float normalizer = timeDelta > 0f ? timeDelta : 1f;     // To avoid division by 0
 
             for (int j = 0; j < deltas.Length; j++)
                 deltas[j] = (aligned[i][j] - aligned[i - 1][j]) / normalizer;
@@ -121,6 +145,45 @@ public class FeatureVectorExtractor
 
         aggregated[offset] = motionEnergy;
 
+        // Standardize final feature vector per feature using the running mean and std to keep scales comparable
+        // so the algorithm doesn't bias one statistic over all the others because it has a larger scale
+        StandardizeFeatureVector(aggregated);
+
         return aggregated;
     }
+
+    void StandardizeFeatureVector(float[] featureVector)
+    {
+        // Initialize values 
+        if (runningMean == null || runningMean.Length != featureVector.Length)
+        {
+            runningMean = new float[featureVector.Length];
+            runningVarianceAccumulator = new float[featureVector.Length];
+            runningCount = 0;
+        }
+
+        // Calculate running mean and variance using Welford's method for computing variance
+        runningCount++;
+        float count = runningCount;
+        for (int i = 0; i < featureVector.Length; i++)
+        {
+            float value = featureVector[i];
+            float delta = value - runningMean[i];
+            runningMean[i] += delta / count;
+            float delta2 = value - runningMean[i];
+            runningVarianceAccumulator[i] += delta * delta2;
+
+            if (runningCount > 1)
+            {
+                float variance = runningVarianceAccumulator[i] / (runningCount - 1);
+                float stdDev = Mathf.Sqrt(variance);
+                featureVector[i] = stdDev > 0.0001f ? (value - runningMean[i]) / stdDev : 0f;
+            }
+            else
+            {
+                featureVector[i] = 0f;
+            }
+        }
+    }
+
 }
