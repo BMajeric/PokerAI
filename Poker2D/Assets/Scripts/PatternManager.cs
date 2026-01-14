@@ -6,11 +6,12 @@ public class PatternManager
     public List<Pattern> patterns = new List<Pattern>();
     public float threshold = 0.5f;
 
-    public Pattern FindOrCreate(float[] featureVector)
+    public Pattern FindOrCreate(float[] featureVector, out bool isNew)
     {
         Pattern best = null;
         float bestDist = float.MaxValue;
 
+        // Find the pattern that matches our pattern the most
         foreach (var pattern in patterns)
         {
             float distance = Distance(featureVector, pattern.centroid);
@@ -21,11 +22,17 @@ public class PatternManager
             }
         }
 
+        // If the pattern is close enough, match it
         if (best != null && bestDist < threshold)
+        {
+            isNew = false;
             return best;
+        }
 
+        // If pattern is not close enough, create a new one
         Pattern newPattern = new Pattern(featureVector);
         patterns.Add(newPattern);
+        isNew = true;
         return newPattern;
     }
 

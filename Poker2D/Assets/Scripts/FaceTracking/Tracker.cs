@@ -97,6 +97,8 @@ public class Tracker : MonoBehaviour
 	float[] landmarksDDQ;
 	float[] landmarks;
 
+	public FaceFrameBuffer FaceFrameBuffer => faceFrameBuffer;
+	public int ReferenceFeaturePointIndex => referenceFeaturePointIndex;
 
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;
@@ -307,6 +309,14 @@ public class Tracker : MonoBehaviour
 			landmarks = ExtractXYZ(landmarksDDQ);
 
 			Debug.Log($"Landmarks: [{String.Join(", ", landmarks.Select(v => v.ToString()))}]");
+
+			// Fill the frame buffer with face frame data
+			if (faceFrameBuffer != null && landmarks != null && landmarks.Length > 0)
+			{
+				float[] landmarksSnapshot = new float[landmarks.Length];
+				Array.Copy(landmarks, landmarksSnapshot, landmarks.Length);
+				faceFrameBuffer.AddFrame(new FaceFrame(Time.time, landmarksSnapshot));
+			}
 		}
 
 	}

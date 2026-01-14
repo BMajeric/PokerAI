@@ -18,6 +18,7 @@ public class TurnManager : MonoBehaviour
     private int _opponentPot;
 
     public int Pot => _playerPot + _opponentPot;
+    public GameState CurrentGameState => _gameState;
 
     private bool _isPlayersTurn;
     private bool _isPlayersTurnOnRoundStart;

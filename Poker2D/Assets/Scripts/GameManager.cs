@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
@@ -24,6 +25,15 @@ public class GameManager : MonoBehaviour
     private readonly int bigBlind = 50;
 
     private bool _isPlayerBigBlind = false;
+
+    public event Action OnHoleCardsDealt;
+    public event Action OnFlopDealt;
+    public event Action OnTurnDealt;
+    public event Action OnRiverDealt;
+
+    public Player Player => _player;
+    public OpponentAISimple Opponent => _opponent;
+    public List<Card> CommunityCards => _table.CommunityCards;
 
     private void Awake()
     {
@@ -99,6 +109,8 @@ public class GameManager : MonoBehaviour
             AnimateCardDraw(drawnCardGameObject.transform, _handCardTransforms[i]);
 
             yield return new WaitForSeconds(0.25f);
+
+            OnHoleCardsDealt?.Invoke();
         }
     }
 
@@ -144,6 +156,8 @@ public class GameManager : MonoBehaviour
             AnimateCardDraw(flopCardGameObject.transform, _flopCardTransforms[i]);
             yield return new WaitForSeconds(0.25f);
         }
+
+        OnFlopDealt?.Invoke();
     }
 
     public void DealTurn()
@@ -158,6 +172,7 @@ public class GameManager : MonoBehaviour
         // Animate card dealing
         AnimateCardDraw(turnCardGameObject.transform, _turnCardTransform);
 
+        OnTurnDealt?.Invoke();
     }
 
     public void DealRiver()
@@ -171,6 +186,8 @@ public class GameManager : MonoBehaviour
 
         // Animate card dealing
         AnimateCardDraw(riverCardGameObject.transform, _riverCardTransform);
+
+        OnRiverDealt?.Invoke();
     }
 
     public Player ComparePlayersHandStrength()
