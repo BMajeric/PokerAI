@@ -3,10 +3,10 @@ public class Pattern
     public float[] centroid;
     public int count;
 
-    public int bluffCount;
+    public int successfulBluffCount;
     public int strongAggressiveCount;
     public int strongPassiveCount;
-    public int weakAggressiveCount;
+    public int weakAggressiveCount;     // This represents a bluff atempt
     public int weakPassiveCount;
 
     public Pattern(float[] initial)
@@ -35,7 +35,7 @@ public class Pattern
             {
                 weakAggressiveCount++;
                 if (didWin)
-                    bluffCount++;
+                    successfulBluffCount++;
             }
             else
             {
