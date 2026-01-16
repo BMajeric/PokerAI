@@ -3812,11 +3812,16 @@ MonoBehaviour:
   _actionPreEventSeconds: 1.5
   _actionPostEventSeconds: 0.25
   _fallbackReferenceFeaturePointIndex: 0
+  _patternMatchThreshold: 55
+  _enableAutoThresholdCalibration: 1
+  _autoThresholdStdMultiplier: 2
+  _minAutoCalibrationSamples: 10
   _preflopStrongThreshold: 1
   _flopStrongThreshold: 1
   _turnStrongThreshold: 2
   _riverStrongThreshold: 2
   _premiumPairRankThreshold: 11
+  _confidentSampleCount: 10
 --- !u!4 &1752145705
 Transform:
   m_ObjectHideFlags: 0
