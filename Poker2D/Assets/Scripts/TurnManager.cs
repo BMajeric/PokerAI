@@ -6,6 +6,7 @@ public class TurnManager : MonoBehaviour
 {
     // Managers
     private ButtonManager _buttonManager;
+    private FacePatternLearningCoordinator _facePatternLearningCoordinator;
 
     // Game related data
     private Player _player;
@@ -38,6 +39,8 @@ public class TurnManager : MonoBehaviour
     {
         // Initialize managers
         _buttonManager = GameObject.Find("ButtonManager").GetComponent<ButtonManager>();
+        _facePatternLearningCoordinator = GameObject.Find("FacePatternLearningCoordinator")
+            .GetComponent<FacePatternLearningCoordinator>();
     }
 
     private void Start()
@@ -57,6 +60,11 @@ public class TurnManager : MonoBehaviour
         _player = player;
         _opponent = opponent;
         _table = table;
+
+        if (_opponent != null)
+        {
+            _opponent.SetFacePatternLearningCoordinator(_facePatternLearningCoordinator);
+        }
     }
 
     public void StartRound(bool isPlayersTurn, int smallBlind, int bigBlind)
@@ -278,6 +286,7 @@ public class TurnManager : MonoBehaviour
     {
         return new GameStateSnapshot
         {
+            GameState = _gameState,
             PlayerPot = _playerPot,
             OpponentPot = _opponentPot,
             PlayerChips = _player.Chips,

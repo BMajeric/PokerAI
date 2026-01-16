@@ -49,7 +49,7 @@ public class PatternManager
             return best;
         }
 
-        // If pattern is not close enough, create a new one
+        // If pattern is not close enough or not found, create a new one
         Pattern newPattern = new Pattern(featureVector);
         patterns.Add(newPattern);
         isNew = true;
@@ -59,12 +59,38 @@ public class PatternManager
         return newPattern;
     }
 
+    public bool TryGetClosestPattern(float[] featureVector, out Pattern closestPattern, out float bestDistance)
+    {
+        // Try to find the closest pattern without adding it into the pattern list or creating a new pattern
+        closestPattern = null;
+        bestDistance = float.MaxValue;
+
+        foreach (var pattern in patterns)
+        {
+            float distance = Distance(featureVector, pattern.centroid);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                closestPattern = pattern;
+            }
+        }
+
+        if (closestPattern == null || bestDistance >= threshold)
+        {
+            closestPattern = null;
+            return false;
+        }
+
+        return true;
+    }
+
     float Distance(float[] a, float[] b)
     {
         // If the dimensions don't match there has been a mistake so return the maximum possible distance
         if (a.Length != b.Length)
             return float.MaxValue;
 
+        // Calculate Euclidean distance
         float sum = 0f;
         for (int i = 0; i < a.Length; i++)
             sum += (a[i] - b[i]) * (a[i] - b[i]);
@@ -118,6 +144,7 @@ public class PatternManager
 
         public void AddSample(float sample)
         {
+            // Update stats using Welford's method for computing variance
             Count++;
             float delta = sample - Mean;
             Mean += delta / Count;

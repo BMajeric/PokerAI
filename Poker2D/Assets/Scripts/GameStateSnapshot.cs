@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 public class GameStateSnapshot
 {
+    public GameState GameState;
     public int PlayerPot;
     public int OpponentPot;
     public int PlayerChips;

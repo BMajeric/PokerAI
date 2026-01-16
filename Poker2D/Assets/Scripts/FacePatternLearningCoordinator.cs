@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class FacePatternLearningCoordinator : MonoBehaviour
 {
+    public struct ObservationContext
+    {
+        public float[] FeatureVector;
+        public float Timestamp;
+        public bool HasData;
+    }
+
     [Header("Scene References")]
     [SerializeField] private Tracker _faceTracker;
     [SerializeField] private GameManager _gameManager;
@@ -32,13 +39,18 @@ public class FacePatternLearningCoordinator : MonoBehaviour
     [SerializeField] private HandRanking _riverStrongThreshold = HandRanking.TWO_PAIR;
     [SerializeField] private int _premiumPairRankThreshold = 11;    // Premium pair = a pair of Jacks, Queens, Kings or Aces
 
+    [Header("Confidence calculation")]
+    [SerializeField] private float _confidentSampleCount = 10f;
+
     private FaceFrameBuffer _faceFrameBuffer;
     private FeatureVectorExtractor _featureVectorExtractor;
     private PatternManager _patternManager;
 
     private readonly List<Observation> _pendingObservations = new List<Observation>();
+    private readonly Dictionary<(GameState, ObservationType), ObservationContext> _recentObservations =
+        new Dictionary<(GameState, ObservationType), ObservationContext>();
 
-    private enum ObservationType
+    public enum ObservationType
     {
         HoleCards,
         Flop,
@@ -155,6 +167,7 @@ public class FacePatternLearningCoordinator : MonoBehaviour
     private void HandleRoundEnded(Player winner)
     {
         _pendingObservations.Clear();
+        _recentObservations.Clear();
     }
 
     private void CaptureObservation(ObservationType observationType)
@@ -194,13 +207,21 @@ public class FacePatternLearningCoordinator : MonoBehaviour
         float[] featureVector = _featureVectorExtractor.Extract(frames);
 
         // Store the observation
-        _pendingObservations.Add(new Observation
+        Observation observation = new Observation
         {
             Type = observationType,
             Timestamp = eventTime,
             FeatureVector = featureVector,
             Stage = stage
-        });
+        };
+
+        _pendingObservations.Add(observation);
+        _recentObservations[(stage, observationType)] = new ObservationContext
+        {
+            FeatureVector = featureVector,
+            Timestamp = eventTime,
+            HasData = true
+        };
     }
 
     private void ResolvePendingObservations(Player winner)
@@ -234,6 +255,43 @@ public class FacePatternLearningCoordinator : MonoBehaviour
         }
 
         _pendingObservations.Clear();
+    }
+
+    public PlayerTendency GetPlayerTendency(GameState stage, ObservationType actionType)
+    {
+        // Early exits if things are not configured as they should be
+        if (_patternManager == null)
+        {
+            return PlayerTendency.None;
+        }
+
+        if (!_recentObservations.TryGetValue((stage, actionType), out ObservationContext context))
+        {
+            return PlayerTendency.None;
+        }
+
+        if (!context.HasData || context.FeatureVector == null)
+        {
+            return PlayerTendency.None;
+        }
+
+        if (!_patternManager.TryGetClosestPattern(context.FeatureVector, out Pattern pattern, out float distance))
+        {
+            return PlayerTendency.None;
+        }
+
+        // Calculate pattern confidence by linearly combining:
+        // Distance factor:
+        //          - clamps distance so it doesn't baloon above 1
+        //          - reverses it so 1 is a perfect match and 0 is a match at the threshold
+        // Sample factor:
+        //          - uses the estimated amount of samples needed to calssify it as confident
+        //          - clamps percent of confident sample amount between 0 and 1
+        float distanceFactor = 1f - Mathf.Clamp01(distance / Mathf.Max(_patternManager.threshold, 0.0001f));
+        float sampleFactor = Mathf.Clamp01(pattern.count / _confidentSampleCount);
+        float confidence = Mathf.Clamp01(distanceFactor * 0.5f + sampleFactor * 0.5f);
+
+        return PlayerTendency.FromPattern(pattern, confidence);
     }
 
     private GameState ResolveStageForObservation(ObservationType observationType)
