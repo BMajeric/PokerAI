@@ -1,5 +1,6 @@
 public class Pattern
 {
+    public int id;
     public float[] centroid;
     public int count;
 
@@ -9,16 +10,18 @@ public class Pattern
     public int weakAggressiveCount;     // This represents a bluff atempt
     public int weakPassiveCount;
 
-    public Pattern(float[] initial)
+    public Pattern(float[] initial, int id)
     {
         centroid = initial;
+        this.id = id;
         count = 1;
     }
 
     // The constructor for restoring patterns by loading them from memory
-    public Pattern(float[] initial, int count, int successfulBluffCount, int strongAggressiveCount, int strongPassiveCount, int weakAggressiveCount, int weakPassiveCount)
+    public Pattern(float[] initial, int id, int count, int successfulBluffCount, int strongAggressiveCount, int strongPassiveCount, int weakAggressiveCount, int weakPassiveCount)
     {
         centroid = initial;
+        this.id = id;
         this.count = count;
         this.successfulBluffCount = successfulBluffCount;
         this.strongAggressiveCount = strongAggressiveCount;
@@ -32,6 +35,7 @@ public class Pattern
     {
         return new PatternDto
         {
+            id = id,
             centroid = centroid,
             count = count,
             successfulBluffCount = successfulBluffCount,

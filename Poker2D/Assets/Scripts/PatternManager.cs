@@ -12,6 +12,9 @@ public class PatternManager
     private readonly RunningStats _matchedDistanceStats = new RunningStats();
     private readonly RunningStats _newDistanceStats = new RunningStats();
 
+    // Used to assign the pattern ids
+    private int _nextPatternId = 1;
+
     // Getter for feature vector length
     public int FeatureVectorLength
     {
@@ -67,7 +70,7 @@ public class PatternManager
         }
 
         // If pattern is not close enough or not found, create a new one
-        Pattern newPattern = new Pattern(featureVector);
+        Pattern newPattern = new Pattern(featureVector, _nextPatternId++);
         patterns.Add(newPattern);
         isNew = true;
         bestDistance = bestDist;
@@ -176,6 +179,7 @@ public class PatternManager
     public void LoadFromDto(PatternManagerDto dto)
     {
         patterns.Clear();
+        _nextPatternId = 1;
 
         // If no patterns exist in the DTO, start with a clean pattern manager
         if (dto == null || dto.patterns == null)
@@ -192,6 +196,7 @@ public class PatternManager
 
             Pattern pattern = new Pattern(
                 patternDto.centroid,
+                patternDto.id,
                 patternDto.count,
                 patternDto.successfulBluffCount,
                 patternDto.strongAggressiveCount,
@@ -199,6 +204,11 @@ public class PatternManager
                 patternDto.weakAggressiveCount,
                 patternDto.weakPassiveCount);
             patterns.Add(pattern);
+
+            if (patternDto.id >= _nextPatternId)
+            {
+                _nextPatternId = patternDto.id + 1;
+            }
         }
     }
 

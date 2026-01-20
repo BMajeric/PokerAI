@@ -273,10 +273,12 @@ public class FacePatternLearningCoordinator : MonoBehaviour
 
             // Find if a pattern like this exists or not and create or update it
             Pattern pattern = _patternManager.FindOrCreate(observation.FeatureVector, out bool isNew, out float distance);
-            Debug.Log($"FacePatternLearningCoordinator: match distance={distance:F4} threshold={_patternManager.threshold:F4} new={isNew}.");
+            Debug.Log($"FacePatternLearningCoordinator: match distance={distance:F4} threshold={_patternManager.threshold:F4} new={isNew} patternId={pattern.id}.");
             if (!isNew)
                 pattern.Update(observation.FeatureVector, isStrongHand, isAggressive, didPlayerWin);
         }
+
+        Debug.Log($"Coordinator: Different patterns: {_patternManager.patterns.Count}");
 
         _pendingObservations.Clear();
     }

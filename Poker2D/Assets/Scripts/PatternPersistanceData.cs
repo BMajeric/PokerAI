@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class PatternDto
 {
+    public int id;
     public float[] centroid;
     public int count;
     public int successfulBluffCount;
