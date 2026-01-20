@@ -99,6 +99,7 @@ public class Tracker : MonoBehaviour
 
 	public FaceFrameBuffer FaceFrameBuffer => faceFrameBuffer;
 	public int ReferenceFeaturePointIndex => referenceFeaturePointIndex;
+	public int CurrentLandmarksLength => landmarks != null ? landmarks.Length : 0;
 
 #if UNITY_ANDROID
 	private AndroidJavaObject androidCameraActivity;

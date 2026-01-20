@@ -15,6 +15,33 @@ public class Pattern
         count = 1;
     }
 
+    // The constructor for restoring patterns by loading them from memory
+    public Pattern(float[] initial, int count, int successfulBluffCount, int strongAggressiveCount, int strongPassiveCount, int weakAggressiveCount, int weakPassiveCount)
+    {
+        centroid = initial;
+        this.count = count;
+        this.successfulBluffCount = successfulBluffCount;
+        this.strongAggressiveCount = strongAggressiveCount;
+        this.strongPassiveCount = strongPassiveCount;
+        this.weakAggressiveCount = weakAggressiveCount;
+        this.weakPassiveCount = weakPassiveCount;
+    }
+
+    // Create Data transfer object from pattern
+    public PatternDto ToDto()
+    {
+        return new PatternDto
+        {
+            centroid = centroid,
+            count = count,
+            successfulBluffCount = successfulBluffCount,
+            strongAggressiveCount = strongAggressiveCount,
+            strongPassiveCount = strongPassiveCount,
+            weakAggressiveCount = weakAggressiveCount,
+            weakPassiveCount = weakPassiveCount
+        };
+    }
+
     public void Update(float[] sample, bool isStrongHand, bool isAggressive, bool didWin)
     {
         count++;

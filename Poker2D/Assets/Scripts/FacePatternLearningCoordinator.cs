@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class FacePatternLearningCoordinator : MonoBehaviour
@@ -45,6 +46,7 @@ public class FacePatternLearningCoordinator : MonoBehaviour
     private FaceFrameBuffer _faceFrameBuffer;
     private FeatureVectorExtractor _featureVectorExtractor;
     private PatternManager _patternManager;
+    private bool _hasLoadedPatterns;
 
     private readonly List<Observation> _pendingObservations = new List<Observation>();
     private readonly Dictionary<(GameState, ObservationType), ObservationContext> _recentObservations =
@@ -87,7 +89,8 @@ public class FacePatternLearningCoordinator : MonoBehaviour
         }
 
         _featureVectorExtractor = new FeatureVectorExtractor(referenceIndex);
-        _patternManager = new PatternManager(_patternMatchThreshold, _enableAutoThresholdCalibration, _autoThresholdStdMultiplier, _minAutoCalibrationSamples);
+
+        ResetPatternManager();
 
         Debug.Log($"FacePatternLearningCoordinator: pattern threshold set to {_patternManager.threshold:F4} (autoCalibrate={_patternManager.autoCalibrateThreshold}).");
 
@@ -110,6 +113,7 @@ public class FacePatternLearningCoordinator : MonoBehaviour
             _buttonManager.OnPlayerChecked += HandlePlayerChecked;
             _buttonManager.OnPlayerCalled += HandlePlayerCalled;
             _buttonManager.OnPlayerRaised += HandlePlayerRaised;
+            _buttonManager.OnLoadExistingPatternsSelected += HandleLoadExistingPatternsSelected;
         }
 
         if (_turnManager != null)
@@ -168,6 +172,26 @@ public class FacePatternLearningCoordinator : MonoBehaviour
     {
         _pendingObservations.Clear();
         _recentObservations.Clear();
+
+        // Save patterns after every round to keep a consistent save file
+        SavePatterns();
+    }
+
+    private void HandleLoadExistingPatternsSelected(bool shouldLoad)
+    {
+        // If patterns are already loaded skip this
+        if (_hasLoadedPatterns)
+        {
+            return;
+        }
+
+        // If patterns should be loaded, load them and update the hasLoaded flag
+        if (shouldLoad)
+        {
+            LoadPatterns();
+        }
+
+        _hasLoadedPatterns = true;
     }
 
     private void CaptureObservation(ObservationType observationType)
@@ -293,6 +317,80 @@ public class FacePatternLearningCoordinator : MonoBehaviour
 
         return PlayerTendency.FromPattern(pattern, confidence);
     }
+
+    public void SavePatterns()
+    {
+        if (_patternManager == null)
+        {
+            return;
+        }
+
+        // Check if feature vector is available
+        int featureVectorLength = ResolveExpectedFeatureVectorLength();
+        if (featureVectorLength <= 0)
+        {
+            Debug.LogWarning("FacePatternLearningCoordinator: skipped saving patterns because feature vector length is unavailable.");
+            return;
+        }
+
+        // Convert the pattern manager to Data transfer object
+        PatternManagerDto dto = _patternManager.ToDto(featureVectorLength);
+
+        // Convert to JSON and save the file to dedicated path
+        string json = JsonUtility.ToJson(dto, true);
+        string path = GetPatternFilePath();
+
+        try
+        {
+            File.WriteAllText(path, json);
+        }
+        catch (IOException exception)
+        {
+            Debug.LogWarning($"FacePatternLearningCoordinator: failed to save patterns to {path}. {exception.Message}");
+        }
+    }
+
+    public void LoadPatterns()
+    {
+        // Create pattern manager if it doesn't exist
+        if (_patternManager == null)
+        {
+            ResetPatternManager();
+        }
+
+        // Read the file from the dedicated path
+        string path = GetPatternFilePath();
+        if (!File.Exists(path))
+        {
+            ResetPatternManager();
+            Debug.Log($"FacePatternLearningCoordinator: no saved patterns found at {path}.");
+            return;
+        }
+
+        // Parse the JSON file to pattern manager object
+        try
+        {
+            string json = File.ReadAllText(path);
+            PatternManagerDto dto = JsonUtility.FromJson<PatternManagerDto>(json);
+
+            // Don't load data that would not be compatible with the new coming data
+            if (!IsPatternDataCompatible(dto))
+            {
+                ResetPatternManager();
+                Debug.LogWarning("FacePatternLearningCoordinator: saved patterns were incompatible. Resetting pattern memory.");
+                return;
+            }
+
+            _patternManager.LoadFromDto(dto);
+            Debug.Log($"FacePatternLearningCoordinator: loaded {_patternManager.patterns.Count} patterns from {path}.");
+        }
+        catch (IOException exception)
+        {
+            ResetPatternManager();
+            Debug.LogWarning($"FacePatternLearningCoordinator: failed to load patterns from {path}. {exception.Message}");
+        }
+    }
+
 
     private GameState ResolveStageForObservation(ObservationType observationType)
     {
@@ -471,6 +569,52 @@ public class FacePatternLearningCoordinator : MonoBehaviour
         return (int)((encodedValue >> 16) & 0xF);
     }
 
+    private void ResetPatternManager()
+    {
+        _patternManager = new PatternManager(_patternMatchThreshold, _enableAutoThresholdCalibration, _autoThresholdStdMultiplier, _minAutoCalibrationSamples);
+    }
+
+    private string GetPatternFilePath()
+    {
+        return Path.Combine(Application.persistentDataPath, "face_pattern_memory.json");
+    }
+
+    private bool IsPatternDataCompatible(PatternManagerDto dto)
+    {
+        if (dto == null || dto.version != PatternManagerDto.CurrentVersion)
+        {
+            return false;
+        }
+
+        if (dto.featureVectorLength <= 0)
+        {
+            return false;
+        }
+
+        int expectedLength = ResolveExpectedFeatureVectorLength();
+        if (expectedLength > 0 && expectedLength != dto.featureVectorLength)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private int ResolveExpectedFeatureVectorLength()
+    {
+        if (_faceTracker != null)
+        {
+            int landmarksLength = _faceTracker.CurrentLandmarksLength;
+            if (landmarksLength > 0)
+            {
+                // For the mean, variance and max abs value + motion energy
+                return landmarksLength * 3 + 1;
+            }
+        }
+
+        return _patternManager != null ? _patternManager.FeatureVectorLength : 0;
+    }
+
     private void OnDestroy()
     {
         if (_gameManager != null)
@@ -487,6 +631,7 @@ public class FacePatternLearningCoordinator : MonoBehaviour
             _buttonManager.OnPlayerChecked -= HandlePlayerChecked;
             _buttonManager.OnPlayerCalled -= HandlePlayerCalled;
             _buttonManager.OnPlayerRaised -= HandlePlayerRaised;
+            _buttonManager.OnLoadExistingPatternsSelected -= HandleLoadExistingPatternsSelected;
         }
 
         if (_turnManager != null)

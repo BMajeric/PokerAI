@@ -12,6 +12,23 @@ public class PatternManager
     private readonly RunningStats _matchedDistanceStats = new RunningStats();
     private readonly RunningStats _newDistanceStats = new RunningStats();
 
+    // Getter for feature vector length
+    public int FeatureVectorLength
+    {
+        get
+        {
+            foreach (Pattern pattern in patterns)
+            {
+                if (pattern != null && pattern.centroid != null)
+                {
+                    return pattern.centroid.Length;
+                }
+            }
+
+            return 0;
+        }
+    }
+
     public PatternManager(float threshold = 55f, 
                           bool autoCalibrateThreshold = false, 
                           float calibrationStdMultiplier = 2f, 
@@ -132,6 +149,57 @@ public class PatternManager
 
         threshold = suggested;
         Debug.Log($"PatternManager: auto-calibrated threshold={threshold:F4} (mean={_matchedDistanceStats.Mean:F4}, std={_matchedDistanceStats.StandardDeviation:F4}, k={calibrationStdMultiplier:F2}).");
+    }
+
+    // Create Data transfer object from the pattern manager containing all patterns
+    public PatternManagerDto ToDto(int featureVectorLength)
+    {
+        PatternManagerDto dto = new PatternManagerDto
+        {
+            featureVectorLength = featureVectorLength
+        };
+
+        foreach (Pattern pattern in patterns)
+        {
+            if (pattern == null)
+            {
+                continue;
+            }
+
+            dto.patterns.Add(pattern.ToDto());
+        }
+
+        return dto;
+    }
+
+    // Read saved DTO and load all the data into the pattern manager
+    public void LoadFromDto(PatternManagerDto dto)
+    {
+        patterns.Clear();
+
+        // If no patterns exist in the DTO, start with a clean pattern manager
+        if (dto == null || dto.patterns == null)
+        {
+            return;
+        }
+
+        foreach (PatternDto patternDto in dto.patterns)
+        {
+            if (patternDto == null || patternDto.centroid == null)
+            {
+                continue;
+            }
+
+            Pattern pattern = new Pattern(
+                patternDto.centroid,
+                patternDto.count,
+                patternDto.successfulBluffCount,
+                patternDto.strongAggressiveCount,
+                patternDto.strongPassiveCount,
+                patternDto.weakAggressiveCount,
+                patternDto.weakPassiveCount);
+            patterns.Add(pattern);
+        }
     }
 
     private class RunningStats

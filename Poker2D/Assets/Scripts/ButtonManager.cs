@@ -24,6 +24,9 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private TMP_Text _playerPotUI;
     [SerializeField] private TMP_Text _opponentPotUI;
 
+    [Header("Pattern Memory")]
+    [SerializeField] private Toggle _loadPatternsToggle;
+
     private TurnManager _turnManager;
 
     private Player _player = null;
@@ -37,6 +40,8 @@ public class ButtonManager : MonoBehaviour
     public event Action OnPlayerChecked;
     public event Action OnPlayerCalled;
     public event Action<int> OnPlayerRaised;
+    public event Action<bool> OnLoadExistingPatternsSelected;
+
 
     private void Awake()
     {
@@ -113,6 +118,13 @@ public class ButtonManager : MonoBehaviour
         _playerPotUI.gameObject.SetActive(true);
         _opponentPotUI.gameObject.SetActive(true);
         _startButton.gameObject.SetActive(false);
+
+        // Signal if the patterns should be loaded
+        bool shouldLoadPatterns = _loadPatternsToggle == null || _loadPatternsToggle.isOn;
+        Debug.Log($"Button Manager: Should load patterns: {shouldLoadPatterns}");
+        OnLoadExistingPatternsSelected?.Invoke(shouldLoadPatterns);
+
+        _loadPatternsToggle.gameObject.SetActive(false);
 
         // Start game
         OnGameStarted?.Invoke();
