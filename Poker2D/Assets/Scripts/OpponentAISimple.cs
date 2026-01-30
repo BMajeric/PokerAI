@@ -2,10 +2,15 @@ using UnityEngine;
 
 public class OpponentAISimple : Player
 {
+    // Information on the AIs raise or fold probability calculation
     private const float BaseRaiseChance = 0.15f;
     private const float BaseFoldChance = 0.15f;
     private const float MinTendencyConfidence = 0.4f;
     private const float MaxBiasShift = 0.5f;
+
+    // Information on the AIs raise amounts
+    private const float MinRaiseScale = 0.00f;  // Make the AI unable to bet less than 100% + MinRaiseScale of its minimum when raising
+    private const float MaxRaiseScale = 0.9f;   // Make the AI unable to go all in strictly based on high confidence
 
     private FacePatternLearningCoordinator _facePatternLearningCoordinator;
 
@@ -57,11 +62,33 @@ public class OpponentAISimple : Player
             response = (PlayerAction.CHECK, 0);
         }
 
+        // Opponent can bet if they have more chips than what theh have to bet for CALL cation (they don't go all in by calling)
+        bool canRaise = (state.PlayerPot - state.OpponentPot) < state.OpponentChips;
+
         // Apply the raise and fold chances to calculate the final AI decision
         float chance = Random.value;
-        if (chance <= raiseChance)
+        if (chance <= raiseChance && canRaise)
         {
-            int amount = Random.Range(state.PlayerPot - state.OpponentPot + 1, Mathf.Min((state.PlayerChips + (state.PlayerPot - state.OpponentPot)), state.OpponentChips) + 1);
+            int minRaise = state.PlayerPot - state.OpponentPot + 1;
+            int maxRaise = Mathf.Min(state.PlayerChips + (state.PlayerPot - state.OpponentPot), state.OpponentChips);
+
+            // Shouldn't be able to happen but still useful to have a safety check
+            if (maxRaise < minRaise)
+            {
+                maxRaise = minRaise;
+            }
+
+            // MAke the default raise for the AI if there is no facial data 10-25% of its pot at random
+            float raiseT = Random.Range(0.1f, 0.20f); 
+            if (useTendency)
+            {
+                float weakness = tendency.WeakProbability * tendency.Confidence;
+                float strength = tendency.StrongProbability * tendency.Confidence;
+                raiseT = Mathf.Clamp01(weakness - strength);
+            }
+
+            float scaledT = Mathf.Lerp(MinRaiseScale, MaxRaiseScale, raiseT);
+            int amount = Mathf.RoundToInt(Mathf.Lerp(minRaise, maxRaise, scaledT));
             response = (PlayerAction.RAISE, amount);
         }
         else if (chance >= 1f - foldChance)

@@ -9,7 +9,7 @@ public class Player
     public Player()
     {
         _hand = new Hand();
-        Chips = 2500;
+        Chips = 5000;
     }
 
     public void ReceiveCard(Card card, GameObject cardGO, bool isFaceUp)
