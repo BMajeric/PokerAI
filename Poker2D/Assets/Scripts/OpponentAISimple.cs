@@ -12,6 +12,10 @@ public class OpponentAISimple : Player
     private const float MinRaiseScale = 0.00f;  // Make the AI unable to bet less than 100% + MinRaiseScale of its minimum when raising
     private const float MaxRaiseScale = 0.9f;   // Make the AI unable to go all in strictly based on high confidence
 
+    // Minimum and maximum AI bets when the player tendency is nonexistent or unreliable
+    private const float minDefaultRaiseScale = 0.1f;    
+    private const float maxDefaultRaiseScale = 0.2f;
+
     private FacePatternLearningCoordinator _facePatternLearningCoordinator;
 
     public void SetFacePatternLearningCoordinator(FacePatternLearningCoordinator coordinator)
@@ -79,7 +83,7 @@ public class OpponentAISimple : Player
             }
 
             // MAke the default raise for the AI if there is no facial data 10-25% of its pot at random
-            float raiseT = Random.Range(0.1f, 0.20f); 
+            float raiseT = Random.Range(minDefaultRaiseScale, maxDefaultRaiseScale); 
             if (useTendency)
             {
                 float weakness = tendency.WeakProbability * tendency.Confidence;
