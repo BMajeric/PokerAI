@@ -448,6 +448,12 @@ public class FacePatternLearningCoordinator : MonoBehaviour
         };
     }
 
+    public bool IsPlayerStrongForStage(GameState stage)
+    {
+        HandStrengthSnapshot strength = EvaluateHandStrengthAtStage(stage);
+        return IsStrongHandAtStage(stage, strength);
+    }
+
     private int GetCommunityCardCountForStage(GameState stage)
     {
         switch (stage)

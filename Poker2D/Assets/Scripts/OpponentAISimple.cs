@@ -17,10 +17,16 @@ public class OpponentAISimple : Player
     private const float maxDefaultRaiseScale = 0.2f;
 
     private FacePatternLearningCoordinator _facePatternLearningCoordinator;
+    private AIStats _stats;
 
     public void SetFacePatternLearningCoordinator(FacePatternLearningCoordinator coordinator)
     {
         _facePatternLearningCoordinator = coordinator;
+    }
+
+    public void SetStats(AIStats stats)
+    {
+        _stats = stats;
     }
 
     public (PlayerAction action, int amount) MakeDecision(GameStateSnapshot state)
@@ -43,9 +49,9 @@ public class OpponentAISimple : Player
         if (useTendency)
         {
             // Calculate how agressive the AI should be with betting
-            //          - bluff probability high -> aggression bias > 0 -> AI should raise more often
+            //          - weak hand probability high -> aggression bias > 0 -> AI should raise more often
             //          - strong hand probability high -> aggression bias < 0 -> AI should fold more often
-            float aggressionBias = Mathf.Clamp(tendency.BluffProbability - tendency.StrongProbability, -1f, 1f);
+            float aggressionBias = Mathf.Clamp(tendency.WeakProbability - tendency.StrongProbability, -1f, 1f);
 
             // Bias shift makes the maximum value of raise/fold chance increase = MaxBiasShift
             float biasShift = MaxBiasShift * tendency.Confidence;
@@ -53,6 +59,21 @@ public class OpponentAISimple : Player
             // Clamp the raise and fold chances to prevent negative chances
             raiseChance = Mathf.Clamp01(raiseChance + aggressionBias * biasShift);
             foldChance = Mathf.Clamp01(foldChance - aggressionBias * biasShift);
+
+            // Update the stats
+            if (tendency.WeakProbability >= tendency.StrongProbability)
+            {
+                _stats?.RecordInferredWeakResponse();
+            }
+            else
+            {
+                _stats?.RecordInferredStrongResponse();
+            }
+
+            if (tendency.BluffProbability >= tendency.StrongProbability)
+            {
+                _stats?.RecordInferredBluffResponse();
+            }
         }
 
         // Set default AI calls if it decides not to raise/fold
@@ -82,7 +103,7 @@ public class OpponentAISimple : Player
                 maxRaise = minRaise;
             }
 
-            // MAke the default raise for the AI if there is no facial data 10-25% of its pot at random
+            // Make the default raise for the AI if there is no facial data random with min and max values
             float raiseT = Random.Range(minDefaultRaiseScale, maxDefaultRaiseScale); 
             if (useTendency)
             {
@@ -93,12 +114,15 @@ public class OpponentAISimple : Player
 
             float scaledT = Mathf.Lerp(MinRaiseScale, MaxRaiseScale, raiseT);
             int amount = Mathf.RoundToInt(Mathf.Lerp(minRaise, maxRaise, scaledT));
+
             response = (PlayerAction.RAISE, amount);
         }
         else if (chance >= 1f - foldChance)
         {
             response = (PlayerAction.FOLD, 0);
         }
+
+        _stats?.RecordDecision(response.action, useTendency, tendency);
 
         return response;
     }

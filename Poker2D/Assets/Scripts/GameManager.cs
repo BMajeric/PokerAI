@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
 
     private TurnManager _turnManager;
     private ButtonManager _buttonManager;
+    [SerializeField] private FacePatternLearningCoordinator _facePatternLearningCoordinator;
 
     private readonly int smallBlind = 25;
     private readonly int bigBlind = 50;
@@ -39,6 +40,7 @@ public class GameManager : MonoBehaviour
     {
         _turnManager = GameObject.Find("TurnManager").GetComponent<TurnManager>();
         _buttonManager = GameObject.Find("ButtonManager").GetComponent<ButtonManager>();
+        _facePatternLearningCoordinator = GameObject.Find("FacePatternLearningCoordinator").GetComponent<FacePatternLearningCoordinator>();
     }
 
     void Start()
@@ -199,6 +201,9 @@ public class GameManager : MonoBehaviour
         // Caluclate hand strength of the opponent
         _opponent.GetHand().CalculateHandStrength(_table.CommunityCards);
         Debug.Log($"Opponent hand ranking: {_opponent.GetHand().HandStrength}; value = {_opponent.GetHand().EncodedStrengthValue}");
+
+        bool playerStrong = _facePatternLearningCoordinator.IsPlayerStrongForStage(_turnManager.CurrentGameState);
+        _turnManager.RecordShowdownResult(playerStrong);
 
         // Determine the winner
         Player roundWinner;
