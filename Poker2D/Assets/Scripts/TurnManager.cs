@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.IO;
 
 public class TurnManager : MonoBehaviour
 {
@@ -17,6 +18,14 @@ public class TurnManager : MonoBehaviour
 
     private int _playerPot;
     private int _opponentPot;
+    private AIStats _aiStats;
+
+    [Header("AI Stats Tracking")]
+    [SerializeField] private bool _printStatsSummaries = true;
+    [SerializeField] private int _statsPrintInterval = 1;
+    [SerializeField] private bool _exportStatsToCsv = false;
+    [SerializeField] private string _statsCsvFileName = "ai_stats.csv";
+    private bool _statsEnabled = true;
 
     public int Pot => _playerPot + _opponentPot;
     public GameState CurrentGameState => _gameState;
@@ -60,9 +69,10 @@ public class TurnManager : MonoBehaviour
         _player = player;
         _opponent = opponent;
         _table = table;
-
         if (_opponent != null)
         {
+            _aiStats = new AIStats();
+            _opponent.SetStats(_aiStats);
             _opponent.SetFacePatternLearningCoordinator(_facePatternLearningCoordinator);
         }
     }
@@ -71,6 +81,7 @@ public class TurnManager : MonoBehaviour
     {
         _isPlayersTurn = isPlayersTurn;
         _isPlayersTurnOnRoundStart = isPlayersTurn;
+        _aiStats?.RecordRoundStarted();
 
         // Handle blinds
         _playerPot = isPlayersTurn ? smallBlind : bigBlind;
@@ -119,6 +130,7 @@ public class TurnManager : MonoBehaviour
             _opponentPlayed = true;
             _opponent.BetChips(amount);
             _opponentPot += amount;
+            _aiStats?.RecordAction(action);
 
             // Update UI
             OnOpponentChipsChange?.Invoke(_opponent.Chips);
@@ -210,6 +222,8 @@ public class TurnManager : MonoBehaviour
 
     private IEnumerator EndRoundWithWinnerCoroutine(Player winner)
     {
+        RecordRoundOutcome(winner);
+
         // Distribute chips
         if (winner == null)
         {
@@ -305,4 +319,46 @@ public class TurnManager : MonoBehaviour
         OnWinnerDetermined -= HandleShowdownConcluded;
     }
 
+    public void SetStatsEnabled(bool enabled)
+    {
+        _statsEnabled = enabled;
+    }
+
+    public void RecordShowdownResult(bool playerStrong)
+    {
+        _aiStats?.RecordShowdownResult(playerStrong);
+    }
+
+    private void RecordRoundOutcome(Player winner)
+    {
+        if (_aiStats == null)
+        {
+            return;
+        }
+
+        if (winner == _opponent)
+        {
+            _aiStats.RecordWin();
+        }
+        else if (winner == _player)
+        {
+            _aiStats.RecordLoss();
+        }
+
+        if (!_statsEnabled)
+        {
+            return;
+        }
+
+        if (_printStatsSummaries && _aiStats.Rounds % Mathf.Max(1, _statsPrintInterval) == 0)
+        {
+            Debug.Log(_aiStats.BuildSummary());
+        }
+
+        if (_exportStatsToCsv)
+        {
+            string path = Path.Combine(Application.persistentDataPath, _statsCsvFileName);
+            _aiStats.ExportToCsv(path);
+        }
+    }
 }

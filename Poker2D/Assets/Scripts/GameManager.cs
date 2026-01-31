@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
 
     private readonly int smallBlind = 25;
     private readonly int bigBlind = 50;
+    private const HandRanking StrongHandThreshold = HandRanking.STRAIGHT;
 
     private bool _isPlayerBigBlind = false;
 
@@ -199,6 +200,9 @@ public class GameManager : MonoBehaviour
         // Caluclate hand strength of the opponent
         _opponent.GetHand().CalculateHandStrength(_table.CommunityCards);
         Debug.Log($"Opponent hand ranking: {_opponent.GetHand().HandStrength}; value = {_opponent.GetHand().EncodedStrengthValue}");
+
+        bool playerStrong = _player.GetHand().HandStrength >= StrongHandThreshold;
+        _turnManager.RecordShowdownResult(playerStrong);
 
         // Determine the winner
         Player roundWinner;

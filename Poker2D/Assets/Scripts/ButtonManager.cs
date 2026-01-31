@@ -27,6 +27,9 @@ public class ButtonManager : MonoBehaviour
     [Header("Pattern Memory")]
     [SerializeField] private Toggle _loadPatternsToggle;
 
+    [Header("Stats Tracking")]
+    [SerializeField] private Toggle _statsToggle;
+
     private TurnManager _turnManager;
 
     private Player _player = null;
@@ -66,6 +69,12 @@ public class ButtonManager : MonoBehaviour
         _turnManager.OnPlayerChipsChange += ChangePlayerChipsValues;
         _turnManager.OnOpponentChipsChange += ChangeOpponentChipsValues;
         _turnManager.OnPotValueChanged += ChangePotValue;
+
+        if (_statsToggle != null)
+        {
+            _statsToggle.onValueChanged.AddListener(HandleStatsToggleChanged);
+            HandleStatsToggleChanged(_statsToggle.isOn);
+        }
     }
 
     public void GivePlayerInfo(Player player, Player opponent)
@@ -179,6 +188,11 @@ public class ButtonManager : MonoBehaviour
     {
         _bettingInputField.text = $"${value}";
         StartCoroutine(SetCaretNextFrameCoroutine());
+    }
+
+    private void HandleStatsToggleChanged(bool isOn)
+    {
+        _turnManager.SetStatsEnabled(isOn);
     }
 
     private void OnBettingInputFieldValueChanged(string input)
