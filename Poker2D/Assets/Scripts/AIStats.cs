@@ -224,19 +224,34 @@ public class AIStats
                $"inference accuracy={inferenceAccuracy:P1}";
     }
 
+    private string GenerateCsvHeader()
+    {
+        return "round,action,aggressive,reaction_aligned,used_tendency,confidence,bluff_probability,strong_probability,weak_probability,inference_label,player_strong,inference_correct," +
+               "rounds_total,wins_total,losses_total,folds_total,calls_total,raises_total,checks_total,aggressive_total,passive_total,inferred_weak_total,inferred_bluff_total,inferred_strong_total," +
+               "inference_correct_total,inference_incorrect_total";
+    }
+    
+    public void CreateCsvHeader(string path)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        builder.AppendLine(GenerateCsvHeader());
+
+        File.WriteAllText(path, builder.ToString());
+    }
+
     public void ExportToCsv(string path)
     {
+        // In case file building is skipped somehow
         bool needsHeader = !File.Exists(path);
         StringBuilder builder = new StringBuilder();
 
         if (needsHeader)
         {
-            builder.AppendLine(
-                "round,action,aggressive,reaction_aligned,used_tendency,confidence,bluff_probability,strong_probability,weak_probability,inference_label,player_strong,inference_correct," +
-                "rounds_total,wins_total,losses_total,folds_total,calls_total,raises_total,checks_total,aggressive_total,passive_total,inferred_weak_total,inferred_bluff_total,inferred_strong_total," +
-                "inference_correct_total,inference_incorrect_total");
+            builder.AppendLine(GenerateCsvHeader());
         }
 
+        // Fill the data into CSV
         for (int i = _exportedDecisionCount; i < _decisionRecords.Count; i++)
         {
             DecisionRecord record = _decisionRecords[i];

@@ -54,13 +54,13 @@ public class TurnManager : MonoBehaviour
     private void Start()
     {
         // Subscribe to necessary events
+        _buttonManager.OnLoadExistingPatternsSelected += CreateCsvHeader;
         _buttonManager.OnPlayerFolded += HandlePlayerFolded;
         _buttonManager.OnPlayerChecked += HandlePlayerChecked;
         _buttonManager.OnPlayerCalled += HandlePlayerCalled;
         _buttonManager.OnPlayerRaised += HandlePlayerRaised;
         OnWinnerDetermined += HandleShowdownConcluded;
     }
-
 
     public void InitializeTurnManager(Player player, OpponentAISimple opponent, Table table)
     {
@@ -74,6 +74,16 @@ public class TurnManager : MonoBehaviour
             _aiStats = new AIStats();
             _opponent.SetStats(_aiStats);
             _opponent.SetFacePatternLearningCoordinator(_facePatternLearningCoordinator);
+        }
+    }
+
+    private void CreateCsvHeader(bool shouldAppendToExistingCsv)
+    {
+        if (!shouldAppendToExistingCsv)
+        {
+            Debug.Log($"TurnManager: Creating CSV header because loading previous model is set to {shouldAppendToExistingCsv}");
+            string path = Path.Combine(Application.persistentDataPath, _statsCsvFileName);
+            _aiStats.CreateCsvHeader(path);
         }
     }
 
