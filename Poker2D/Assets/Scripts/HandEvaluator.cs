@@ -27,7 +27,7 @@ public class HandEvaluator
 
         // Encode the cards as bits
         ulong handBits = EncodeHandAsBits(cards);
-        Debug.Log($"Hand bits: {Convert.ToString((long)handBits, 2)}");
+        // Debug.Log($"Hand bits: {Convert.ToString((long)handBits, 2)}");
 
         // Set the error value (encodedValue cannot be 0)
         (HandRanking ranking, uint encodedValue) res = (HandRanking.HIGH_CARD, 0);
@@ -48,7 +48,7 @@ public class HandEvaluator
             res = multiplesHandStrength;
 
         // Debug.Log($"Flush? ({flushHandStrength.ranking}, 0x{flushHandStrength.encodedValue:X})\nStraight? ({straightHandStrength.ranking}, 0x{straightHandStrength.encodedValue:X})\nMultiples? ({multiplesHandStrength.ranking}, 0x{multiplesHandStrength.encodedValue:X})");
-        Debug.Log($"Result: ({res.ranking}, 0x{res.encodedValue:X})");
+        // Debug.Log($"Result: ({res.ranking}, 0x{res.encodedValue:X})");
 
         return res;
     }
@@ -64,7 +64,7 @@ public class HandEvaluator
             int suit = (int)card.Suit;
 
             int bitPosition = (rank - 2) * 4 + suit;
-            Debug.Log($"{card}: {bitPosition}");
+            // Debug.Log($"{card}: {bitPosition}");
             handBits |= 1UL << bitPosition;
         }
 

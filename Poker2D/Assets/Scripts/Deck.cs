@@ -21,7 +21,7 @@ public class Deck
             foreach (Rank rank in System.Enum.GetValues(typeof(Rank)))
             {
                 string spriteName = $"{rank}_of_{suit}";
-                Debug.Log(spriteName);
+                // Debug.Log(spriteName);
 
                 Sprite sprite = _cardSprites.ContainsKey(spriteName) ? _cardSprites[spriteName] : null;
 
@@ -52,7 +52,7 @@ public class Deck
         Card drawnCard = _cards[0];
         _cards.RemoveAt(0);
 
-        Debug.Log($"Drawn the {drawnCard}");
+        // Debug.Log($"Drawn the {drawnCard}");
         return drawnCard;
     }
 

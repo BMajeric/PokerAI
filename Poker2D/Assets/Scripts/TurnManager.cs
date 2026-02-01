@@ -103,7 +103,7 @@ public class TurnManager : MonoBehaviour
 
     public void StartTurn()
     {
-        Debug.Log($"Is it players turn to act on turn start? {_isPlayersTurn}");
+        // Debug.Log($"Is it players turn to act on turn start? {_isPlayersTurn}");
         if (_isPlayersTurn)
             _buttonManager.EnablePlayerBettingUI(
                 _opponentPot > _playerPot ? false : true, 
@@ -114,7 +114,7 @@ public class TurnManager : MonoBehaviour
 
     private void HandleAction(PlayerAction action, int amount)
     {
-        Debug.Log($"Is it players turn to act? {_isPlayersTurn}");
+        // Debug.Log($"Is it players turn to act? {_isPlayersTurn}");
         if (_isPlayersTurn)
         {
             _playerPlayed = true;
@@ -263,28 +263,28 @@ public class TurnManager : MonoBehaviour
 
     private void HandlePlayerFolded()
     {
-        Debug.Log("Player folded!");
+        // Debug.Log("Player folded!");
 
         HandleAction(PlayerAction.FOLD, 0);
     }
 
     private void HandlePlayerChecked()
     {
-        Debug.Log("Player checked!");
+        // Debug.Log("Player checked!");
 
         HandleAction(PlayerAction.CHECK, 0);
     }
 
     private void HandlePlayerCalled()
     {
-        Debug.Log("Player called!");
+        // Debug.Log("Player called!");
 
         HandleAction(PlayerAction.CALL, _opponentPot - _playerPot);
     }
 
     private void HandlePlayerRaised(int amount)
     {
-        Debug.Log($"Player raised {amount}!");
+        // Debug.Log($"Player raised {amount}!");
 
         HandleAction(PlayerAction.RAISE, amount);
     }
