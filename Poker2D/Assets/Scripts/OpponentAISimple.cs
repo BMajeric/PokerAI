@@ -5,7 +5,7 @@ public class OpponentAISimple : Player
     // Information on the AIs raise or fold probability calculation
     private const float BaseRaiseChance = 0.15f;
     private const float BaseFoldChance = 0.15f;
-    private const float MinTendencyConfidence = 0.4f;
+    private const float MinTendencyConfidence = 0.3f;
     private const float MaxBiasShift = 0.5f;
 
     // Information on the AIs raise amounts
