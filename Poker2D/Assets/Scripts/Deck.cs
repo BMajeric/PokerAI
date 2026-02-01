@@ -61,6 +61,10 @@ public class Deck
         // If deck would need to be reshuffled mid dealing, reshuffle it before to prevent duplicate cards
         if (_cards.Count < 9)
         {
+            // Remove old cards from existing deck
+            _cards.Clear();
+
+            // Generate new deck to prevent multiples of the same card
             GenerateDeck();
             Shuffle();
         }
