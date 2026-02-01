@@ -76,10 +76,12 @@ public class OpponentAISimple : Player
             }
         }
 
+        bool playerRaised = false;
         // Set default AI calls if it decides not to raise/fold
         (PlayerAction action, int amount) response;
         if (state.PlayerPot > state.OpponentPot)
         {
+            playerRaised = true;
             response = (PlayerAction.CALL, state.PlayerPot - state.OpponentPot);
         }
         else
@@ -117,8 +119,9 @@ public class OpponentAISimple : Player
 
             response = (PlayerAction.RAISE, amount);
         }
-        else if (chance >= 1f - foldChance)
+        else if (playerRaised && chance >= 1f - foldChance)
         {
+            // AI shouldn't fold when checking is free
             response = (PlayerAction.FOLD, 0);
         }
 
