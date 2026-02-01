@@ -105,6 +105,7 @@ public class FeatureVectorExtractor
         float[] maxAbsDistance = new float[dim];
         float motionEnergy = 0f;
 
+        // delta -> list of deltas of each point between two consecutive frames
         foreach (var delta in deltas)
             for (int i = 0; i < dim; i++)
             {
@@ -173,6 +174,7 @@ public class FeatureVectorExtractor
             float delta2 = value - runningMean[i];
             runningVarianceAccumulator[i] += delta * delta2;
 
+            // Represent each feature with its z-score calculated from a running mean and variance
             if (runningCount > 1)
             {
                 float variance = runningVarianceAccumulator[i] / (runningCount - 1);
