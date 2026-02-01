@@ -202,9 +202,6 @@ public class GameManager : MonoBehaviour
         _opponent.GetHand().CalculateHandStrength(_table.CommunityCards);
         Debug.Log($"Opponent hand ranking: {_opponent.GetHand().HandStrength}; value = {_opponent.GetHand().EncodedStrengthValue}");
 
-        bool playerStrong = _facePatternLearningCoordinator.IsPlayerStrongForStage(_turnManager.CurrentGameState);
-        _turnManager.RecordShowdownResult(playerStrong);
-
         // Determine the winner
         Player roundWinner;
         string winnerName = "";

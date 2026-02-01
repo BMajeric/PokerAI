@@ -166,6 +166,9 @@ public class FacePatternLearningCoordinator : MonoBehaviour
     private void HandleShowdownResolved(Player winner)
     {
         ResolvePendingObservations(winner);
+
+        bool playerStrong = IsPlayerStrongForStage(_turnManager.CurrentGameState);
+        _turnManager.RecordShowdownResult(playerStrong);
     }
 
     private void HandleRoundEnded(Player winner)

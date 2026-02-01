@@ -141,7 +141,9 @@ public class TurnManager : MonoBehaviour
         if (action == PlayerAction.FOLD)
         {
             Player winner = _isPlayersTurn ? _opponent : _player;
-            StartCoroutine(EndRoundWithWinnerCoroutine(winner));
+
+            // ESSENTIAL for making the fold observations labeled and learned
+            NotifyWinner(winner);
             // Debug.Log($"OPPONENT CHIPS NOW: {_opponent.Chips}");
             return;
         }
