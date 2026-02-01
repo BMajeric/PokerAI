@@ -14,7 +14,7 @@ public class Pattern
     {
         centroid = initial;
         this.id = id;
-        count = 1;
+        count = 0;
     }
 
     // The constructor for restoring patterns by loading them from memory
