@@ -23,7 +23,7 @@ public class TurnManager : MonoBehaviour
     [Header("AI Stats Tracking")]
     [SerializeField] private bool _printStatsSummaries = true;
     [SerializeField] private int _statsPrintInterval = 1;
-    [SerializeField] private bool _exportStatsToCsv = false;
+    [SerializeField] private bool _exportStatsToCsv = true;
     [SerializeField] private string _statsCsvFileName = "ai_stats.csv";
 
     public int Pot => _playerPot + _opponentPot;
@@ -326,6 +326,7 @@ public class TurnManager : MonoBehaviour
         {
             string path = Path.Combine(Application.persistentDataPath, _statsCsvFileName);
             _aiStats.ExportToCsv(path);
+            Debug.Log("TurnManager: STATS EXPORTED");
         }
     }
 

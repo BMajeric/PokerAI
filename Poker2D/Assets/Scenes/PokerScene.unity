@@ -5493,6 +5493,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TurnManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7209834786121943932, guid: 2066b82096659134e927b8bfbc487e51, type: 3}
+      propertyPath: _exportStatsToCsv
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
