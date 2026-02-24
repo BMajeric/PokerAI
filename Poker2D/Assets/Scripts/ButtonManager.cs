@@ -27,6 +27,9 @@ public class ButtonManager : MonoBehaviour
     [Header("Pattern Memory")]
     [SerializeField] private Toggle _loadPatternsToggle;
 
+    [Header("Playtest Pattern Insight")]
+    [SerializeField] private TMP_Text _patternRecognitionBubbleUI;
+
     private TurnManager _turnManager;
 
     private Player _player = null;
@@ -228,6 +231,32 @@ public class ButtonManager : MonoBehaviour
     private void ChangePotValue(int pot)
     {
         _collectivePotUI.text = $"${pot}";
+    }
+
+    public void UpdatePatternRecognitionBubble(string handTendency, float confidence, bool hasData)
+    {
+        if (_patternRecognitionBubbleUI == null)
+        {
+            return;
+        }
+
+        if (!hasData)
+        {
+            _patternRecognitionBubbleUI.text = string.Empty;
+            return;
+        }
+
+        _patternRecognitionBubbleUI.text = $"{handTendency} hand detected with confidence {confidence:P0}";
+    }
+
+    public void ClearPatternRecognitionBubble()
+    {
+        if (_patternRecognitionBubbleUI == null)
+        {
+            return;
+        }
+
+        _patternRecognitionBubbleUI.text = string.Empty;
     }
 
     private void OnDestroy()

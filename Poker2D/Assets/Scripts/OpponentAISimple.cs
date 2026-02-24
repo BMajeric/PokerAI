@@ -19,6 +19,8 @@ public class OpponentAISimple : Player
     private FacePatternLearningCoordinator _facePatternLearningCoordinator;
     private AIStats _stats;
 
+    public PlayerTendency LastObservedTendency { get; private set; } = PlayerTendency.None;
+
     public void SetFacePatternLearningCoordinator(FacePatternLearningCoordinator coordinator)
     {
         _facePatternLearningCoordinator = coordinator;
@@ -44,6 +46,8 @@ public class OpponentAISimple : Player
             tendency = _facePatternLearningCoordinator.GetPlayerTendency(state.GameState, actionType);
             useTendency = tendency.HasData && tendency.Confidence >= MinTendencyConfidence;
         }
+
+        LastObservedTendency = tendency;
 
         // If tendency is useful, update raise and fold probabilities accordingly
         if (useTendency)

@@ -1,5 +1,6 @@
 public struct PlayerTendency
 {
+    public int PatternId;
     public float BluffProbability;
     public float StrongProbability;
     public float WeakProbability;
@@ -10,6 +11,7 @@ public struct PlayerTendency
 
     public static PlayerTendency None => new PlayerTendency
     {
+        PatternId = -1,
         BluffProbability = 0f,
         StrongProbability = 0f,
         WeakProbability = 0f,
@@ -25,6 +27,7 @@ public struct PlayerTendency
         {
             return new PlayerTendency
             {
+                PatternId = pattern.id,
                 BluffProbability = 0f,
                 StrongProbability = 0f,
                 WeakProbability = 0f,
@@ -40,6 +43,7 @@ public struct PlayerTendency
 
         return new PlayerTendency
         {
+            PatternId = pattern.id,
             BluffProbability = bluff,
             StrongProbability = strong,
             WeakProbability = weak,

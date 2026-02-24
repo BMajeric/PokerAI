@@ -221,6 +221,10 @@ public class TurnManager : MonoBehaviour
 
         (PlayerAction action, int amount) decision = _opponent.MakeDecision(GetGameState());
 
+        PlayerTendency tendency = _opponent.LastObservedTendency;
+        string handTendency = tendency.WeakProbability >= tendency.StrongProbability ? "Weak" : "Strong";
+        _buttonManager.UpdatePatternRecognitionBubble(handTendency, tendency.Confidence, tendency.HasData);
+
         Debug.Log($"Opponent decided to {decision.action}, amount: {decision.amount}");
 
         // Tell the turn manager what the opponent decided
@@ -268,6 +272,10 @@ public class TurnManager : MonoBehaviour
         {
             _opponent.AddChips(0 - _opponent.Chips + 2500);
         }
+
+        // Clear per-round pattern notification UI
+        _buttonManager.ClearPatternRecognitionBubble();
+
 
         // Notify that the round has ended
         OnRoundEnded?.Invoke(winner);
