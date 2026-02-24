@@ -30,6 +30,9 @@ public class ButtonManager : MonoBehaviour
     [Header("Playtest Pattern Insight")]
     [SerializeField] private TMP_Text _patternRecognitionBubbleUI;
 
+    [Header("Round Result UI")]
+    [SerializeField] private TMP_Text _roundWinnerSummaryUI;
+
     private TurnManager _turnManager;
 
     private Player _player = null;
@@ -257,6 +260,28 @@ public class ButtonManager : MonoBehaviour
         }
 
         _patternRecognitionBubbleUI.text = string.Empty;
+    }
+
+    public void ShowRoundWinnerSummary(string winnerSummary)
+    {
+        if (_roundWinnerSummaryUI == null)
+        {
+            return;
+        }
+
+        _roundWinnerSummaryUI.text = winnerSummary;
+        _roundWinnerSummaryUI.gameObject.SetActive(true);
+    }
+
+    public void HideRoundWinnerSummary()
+    {
+        if (_roundWinnerSummaryUI == null)
+        {
+            return;
+        }
+
+        _roundWinnerSummaryUI.text = string.Empty;
+        _roundWinnerSummaryUI.gameObject.SetActive(false);
     }
 
     private void OnDestroy()

@@ -260,6 +260,12 @@ public class TurnManager : MonoBehaviour
         OnOpponentChipsChange?.Invoke(_opponent.Chips);
         OnPotValueChanged?.Invoke(Pot);
 
+        // Show round winner and hand strength while revealed cards are visible
+        if (_gameState == GameState.SHOWDOWN)
+        {
+            _buttonManager.ShowRoundWinnerSummary(BuildWinnerSummaryText(winner));
+        }
+
         // Add wait to give player a chance to see the enemy cards
         yield return new WaitForSeconds(8);
 
@@ -273,12 +279,38 @@ public class TurnManager : MonoBehaviour
             _opponent.AddChips(0 - _opponent.Chips + 2500);
         }
 
-        // Clear per-round pattern notification UI
+        // Clear per-round playtest UI messages
         _buttonManager.ClearPatternRecognitionBubble();
+        _buttonManager.HideRoundWinnerSummary();
 
 
         // Notify that the round has ended
         OnRoundEnded?.Invoke(winner);
+    }
+
+    private string BuildWinnerSummaryText(Player winner)
+    {
+        if (_player == null || _opponent == null)
+        {
+            return string.Empty;
+        }
+
+        if (winner == _player)
+        {
+            return $"Player wins with {FormatHandRanking(_player.GetHand().HandStrength)}";
+        }
+
+        if (winner == _opponent)
+        {
+            return $"Opponent wins with {FormatHandRanking(_opponent.GetHand().HandStrength)}";
+        }
+
+        return $"Tie with {FormatHandRanking(_player.GetHand().HandStrength)}";
+    }
+
+    private string FormatHandRanking(HandRanking ranking)
+    {
+        return ranking.ToString().Replace("_", " ").ToLower();
     }
 
     private void HandlePlayerFolded()
