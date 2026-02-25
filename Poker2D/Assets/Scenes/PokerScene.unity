@@ -4722,6 +4722,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1802901628}
   - component: {fileID: 1802901627}
+  - component: {fileID: 1802901629}
   m_Layer: 0
   m_Name: Tracker
   m_TagString: Untagged
@@ -4788,6 +4789,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1802901629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802901626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69c436cab3e5bcd42822092d7ee980d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlaySize: {x: 400, y: 300}
+  screenPadding: {x: 20, y: 20}
+  canvasSortOrder: 500
+  enableNativeBinding: 1
+  flipVertical: 1
+  targetRawImage: {fileID: 0}
 --- !u!1 &1834243275
 GameObject:
   m_ObjectHideFlags: 0
